@@ -181,7 +181,7 @@ export function parseCharacter(obj: any, key: string): ICharacter | undefined {
   }
   {//buildSettings
     if (typeof buildSettings !== "object") buildSettings = {}
-    let { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useLockedArts, useEquippedArts, ascending } = buildSettings ?? {}
+    let { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useExcludedArts, useEquippedArts, ascending } = buildSettings ?? {}
     if (!Array.isArray(setFilters)) setFilters = [{ key: "", num: 0 }, { key: "", num: 0 }, { key: "", num: 0 }]
     if (typeof statFilters !== "object") statFilters = {}
 
@@ -199,10 +199,10 @@ export function parseCharacter(obj: any, key: string): ICharacter | undefined {
     if (!optimizationTarget) optimizationTarget = "finalAtk"
     if (typeof mainStatAssumptionLevel !== "number" || mainStatAssumptionLevel < 0 || mainStatAssumptionLevel > 20)
       mainStatAssumptionLevel = 0
-    useLockedArts = !!useLockedArts
+    useExcludedArts = !!useExcludedArts
     useEquippedArts = !!useEquippedArts
     ascending = !!ascending
-    buildSettings = { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useLockedArts, useEquippedArts, ascending }
+    buildSettings = { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useExcludedArts, useEquippedArts, ascending }
   }
 
   // TODO: validate baseStatOverrides, conditionalValues

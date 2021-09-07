@@ -45,7 +45,7 @@ export const character: ICharacter = {
     ],
     statFilters: {},
     useEquippedArts: false,
-    useLockedArts: false,
+    useExcludedArts: false,
   },
 };
 

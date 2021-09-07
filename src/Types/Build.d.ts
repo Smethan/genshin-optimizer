@@ -15,7 +15,7 @@ export interface BuildSetting {
   },
   optimizationTarget: string[] | string,
   mainStatAssumptionLevel: number,
-  useLockedArts: boolean,
+  useExcludedArts: boolean,
   useEquippedArts: boolean,
   ascending: boolean
 }

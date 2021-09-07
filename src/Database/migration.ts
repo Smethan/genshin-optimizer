@@ -35,8 +35,8 @@ function migrateV2ToV3(storage: DBStorage) {
       const value = storage.get(key)
       if (!value) continue
       if (value.buildSetting) {
-        const { artifactsAssumeFull = false, ascending = false, mainStat = ["", "", ""], setFilters = [{ key: "", num: 0 }, { key: "", num: 0 }, { key: "", num: 0 }], useLockedArts = false } = value.buildSetting ?? {}
-        value.buildSettings = { mainStatAssumptionLevel: artifactsAssumeFull ? 20 : 0, ascending, mainStatKeys: mainStat, setFilters, useLockedArts }
+        const { artifactsAssumeFull = false, ascending = false, mainStat = ["", "", ""], setFilters = [{ key: "", num: 0 }, { key: "", num: 0 }, { key: "", num: 0 }], useExcludedArts = false } = value.buildSetting ?? {}
+        value.buildSettings = { mainStatAssumptionLevel: artifactsAssumeFull ? 20 : 0, ascending, mainStatKeys: mainStat, setFilters, useExcludedArts }
       }
 
       storage.set(key, value)
@@ -184,6 +184,10 @@ function migrateV7ToV8(storage: DBStorage) {
           Object.entries(character.talentLevelKeys)
             .map(([key, value]: [any, any]) => [key, value + 1]))
       }
+
+      if (typeof character.buildSettings === "object")
+        // character.buildSettings.useLockedArts -> character.buildSettings.useExcludedArts
+        character.buildSettings.useExcludedArts = character.buildSettings.useLockedArts
 
       const { weapon, ...rest } = character
       if (!weapon) continue

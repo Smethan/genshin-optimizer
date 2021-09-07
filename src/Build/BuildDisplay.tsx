@@ -106,7 +106,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
   const [{ character, characterSheet, weaponSheet, initialStats, statsDisplayKeys }, setCharacterData] = useState({} as characterDataType)
   const buildSettings = useMemo(() => character?.buildSettings ?? initialBuildSettings(), [character])
   if (buildSettings.setFilters.length === 0) buildSettings.setFilters = initialBuildSettings().setFilters//hotfix for an issue with db. can be removed later.
-  const { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useLockedArts: useExcludedArts, useEquippedArts, ascending, } = buildSettings
+  const { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useExcludedArts, useEquippedArts, ascending, } = buildSettings
 
   const buildSettingsDispatch = useCallback((action) => {
     if (!character) return
@@ -376,7 +376,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
                     <Button className="w-100 mb-2" onClick={() => buildSettingsDispatch({ useEquippedArts: !useEquippedArts })} disabled={generatingBuilds}>
                       <span><FontAwesomeIcon icon={useEquippedArts ? faCheckSquare : faSquare} /> Use Equipped Artifacts</span>
                     </Button>
-                    <Button className="w-100 mb-2" onClick={() => buildSettingsDispatch({ useLockedArts: !useExcludedArts })} disabled={generatingBuilds}>
+                    <Button className="w-100 mb-2" onClick={() => buildSettingsDispatch({ useExcludedArts: !useExcludedArts })} disabled={generatingBuilds}>
                       <span><FontAwesomeIcon icon={useExcludedArts ? faCheckSquare : faSquare} /> Use Excluded Artifacts</span>
                     </Button>
                   </Card.Body></Card>
