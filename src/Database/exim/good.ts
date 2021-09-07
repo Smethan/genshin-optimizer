@@ -17,18 +17,21 @@ function importGOOD1(data: IGOOD): ImportResult {
   const storage = new SandboxStorage()
   const { source, characters, artifacts, weapons } = data
 
-  // DO NOT CHANGE THE DB VERSION
-  // GOODv1 matches dbv8.
-  setDBVersion(storage, 8)
   characters.forEach((char) => storage.set(`char_${char.key}`, char))
   artifacts.forEach((art, id) => storage.set(`artifact_${id}`, art))
   weapons.forEach((weapon, id) => storage.set(`weapon_${id}`, weapon))
 
   if (source === GOSource) {
-    const { artifactDisplay, characterDisplay, buildsDisplay } = data as unknown as IGO
+    const { dbVersion, artifactDisplay, characterDisplay, buildsDisplay } = data as unknown as IGO
+    if (dbVersion < 8) return // Something doesn't look right here
+    setDBVersion(storage, dbVersion)
     artifactDisplay && storage.set("ArtifactDisplay.state", artifactDisplay)
     characterDisplay && storage.set("CharacterDisplay.state", characterDisplay)
     buildsDisplay && storage.set("BuildsDisplay.state", buildsDisplay)
+  } else {
+    // DO NOT CHANGE THE DB VERSION
+    // Standard GOODv1 matches dbv8.
+    setDBVersion(storage, 8)
   }
 
   const database = new ArtCharDatabase(storage) // validate storage entries
@@ -39,6 +42,7 @@ function importGOOD1(data: IGOOD): ImportResult {
 export function exportGOOD(storage: DBStorage): IGOOD & IGO {
   return {
     format: "GOOD",
+    dbVersion: 8,
     source: GOSource,
     version: 1,
     characters: storage.entries
@@ -65,8 +69,8 @@ type IGOOD = {
   artifacts: IArtifact[]
   weapons: IWeapon[]
 }
-
 type IGO = {
+  dbVersion: number
   source: typeof GOSource
   artifactDisplay: any
   characterDisplay: any
