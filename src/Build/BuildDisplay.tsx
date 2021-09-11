@@ -156,10 +156,8 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
   }, [charDirty, characterKey, artifactSheets, database, selectCharacter])
 
   //register changes in artifact database
-  useEffect(() => {
-    return database.followAnyArt((_, cause) => (cause !== "equip build") && setArtsDirty())
-  }
-    ,
+  useEffect(() =>
+    database.followAnyArt((_, cause) => (cause !== "equip build") && setArtsDirty()),
     [setArtsDirty, database])
 
   //register changes in character in db
