@@ -50,13 +50,13 @@ function CharacterArtifactPane({ sheets, character, character: { key: characterK
   const equipArts = useCallback(() => {
     if (!window.confirm("Do you want to equip this artifact build to this character?")) return
     if (!newBuild) return
-    newBuild.equippedArtifacts && database.equipArtifacts(characterKey, newBuild.equippedArtifacts)
-  }, [characterKey, newBuild, database])
+    newBuild.equippedArtifacts && localDatabase.equipArtifacts(characterKey, newBuild.equippedArtifacts, "equip build")
+  }, [characterKey, newBuild])
 
   const unequipArts = useCallback(() => {
     if (!window.confirm("Do you want to move all the artifacts equipped to inventory?")) return
-    database.equipArtifacts(characterKey, Object.fromEntries(allSlotKeys.map(sKey => [sKey, ""])) as StrictDict<SlotKey, string>)
-  }, [characterKey, database])
+    localDatabase.equipArtifacts(characterKey, Object.fromEntries(allSlotKeys.map(sKey => [sKey, ""])) as StrictDict<SlotKey, string>)
+  }, [characterKey])
   if (!stats) return null
   return <>
     <Card className="h-100 mb-2" bg="lightcontent" text={"lightfont" as any}>
