@@ -1,7 +1,7 @@
 import { ICachedArtifact, IArtifact } from "../Types/artifact";
 import { ICachedCharacter, ICharacter } from "../Types/character";
 import { allSlotKeys, CharacterKey, SlotKey } from "../Types/consts";
-import { deepClone, getRandomInt } from "../Util/Util";
+import { deepClone, getRandomInt, objectFromKeyMap } from "../Util/Util";
 import { DataManager } from "./DataManager";
 import { migrate } from "./migration";
 import { validateArtifact, parseCharacter, parseArtifact, removeArtifactCache, validateCharacter, removeCharacterCache, parseWeapon, validateWeapon, removeWeaponCache } from "./validation";
@@ -39,7 +39,7 @@ export class ArtCharDatabase {
         }
         const character = validateCharacter(flex)
         // Use relations from artifact
-        character.equippedArtifacts = Object.fromEntries(allSlotKeys.map(slot => [slot, ""])) as any
+        character.equippedArtifacts = objectFromKeyMap(allSlotKeys, () => "")
 
         this.chars.set(flex.key, character)
         // Save migrated version back to db
@@ -116,6 +116,7 @@ export class ArtCharDatabase {
   _getArts() { return this.arts.values }
   _getCharKeys(): CharacterKey[] { return this.chars.keys }
   _getWeapon(key: string) { return this.weapons.get(key) }
+  _getWeapons() { return this.weapons.values }
 
   followChar(key: CharacterKey, cb: Callback<ICachedCharacter>): (() => void) | undefined { return this.chars.follow(key, cb) }
   followArt(key: string, cb: Callback<ICachedArtifact>): (() => void) | undefined {

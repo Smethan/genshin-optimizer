@@ -7,6 +7,7 @@ import { IConditionals, IConditionalValue } from '../../../../Types/IConditional
 import { allElements } from '../../../../Types/consts'
 import ElementalData from '../../../ElementalData'
 import { TransWrapper } from '../../../../Components/Translate'
+import { objectFromKeyMap } from '../../../../Util/Util'
 const ele_dmg_s = [12, 15, 18, 21, 24]
 const ele_dmg_ss = [
   [8, 16, 28],
@@ -18,9 +19,9 @@ const ele_dmg_ss = [
 const conditionals: IConditionals = {
   ele: {
     name: <TransWrapper ns="weapon_MistsplitterReforged" key18="ele" />,
-    states: Object.fromEntries(allElements.map(ele => [ele, {
+    states: objectFromKeyMap(allElements, ele => ({
       name: ElementalData[ele].name
-    }])) as any
+    }))
   },
   em: {//Emblem
     canShow: stats => {
@@ -31,7 +32,7 @@ const conditionals: IConditionals = {
       return true
     },
     name: <TransWrapper ns="weapon_MistsplitterReforged" key18="emblem" />,
-    states: Object.fromEntries([1, 2, 3].map(stacks => [stacks, {
+    states: objectFromKeyMap([1, 2, 3], stacks => ({
       name: <TransWrapper ns="sheet" key18="stack" values={{ count: stacks }} />,
       stats: stats => {
         const [num, ele] = stats.conditionalValues?.weapon?.MistsplitterReforged?.ele ?? [0, ""] as IConditionalValue | undefined
@@ -40,8 +41,7 @@ const conditionals: IConditionals = {
           [`${ele}_dmg_`]: ele_dmg_ss[stats.weapon.refineIndex][stacks - 1]
         }
       }
-    }]))
-
+    }))
   }
 
 }

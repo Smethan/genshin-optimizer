@@ -11,7 +11,7 @@ import { ICachedCharacter } from "../Types/character";
 import { allElements, ArtifactSetKey, ElementKey, SlotKey } from "../Types/consts";
 import { ICalculatedStats } from "../Types/stats";
 import { IFieldDisplay } from "../Types/IFieldDisplay";
-import { deepClone, evalIfFunc } from "../Util/Util";
+import { deepClone, evalIfFunc, objectFromKeyMap } from "../Util/Util";
 import WeaponSheet from "../Weapon/WeaponSheet";
 import CharacterSheet from "./CharacterSheet";
 import { mergeStats } from "../Util/StatUtil";
@@ -97,7 +97,7 @@ export default class Character {
 
     //generate the initalStats obj with data from Character & overrides
     const statKeys = ["enemyLevel", ...Object.keys(characterStatBase)]
-    const initialStats = Object.fromEntries(statKeys.map(key => [key, Character.getStatValueWithOverride(character, characterSheet, weaponSheet, key)])) as ICalculatedStats
+    const initialStats = objectFromKeyMap(statKeys, key => Character.getStatValueWithOverride(character, characterSheet, weaponSheet, key)) as ICalculatedStats
     initialStats.characterHP = characterSheet.getBase("hp", level, ascension)
     initialStats.characterDEF = characterSheet.getBase("def", level, ascension)
     initialStats.characterATK = characterSheet.getBase("atk", level, ascension)

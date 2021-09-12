@@ -6,6 +6,7 @@ import { allMainStatKeys, allSubstats, ICachedArtifact, IArtifact, ICachedSubsta
 import { ICachedCharacter, ICharacter } from "../Types/character";
 import { allArtifactRarities, allArtifactSets, allCharacterKeys, allElements, allHitModes, allReactionModes, allSlotKeys, allWeaponKeys } from "../Types/consts";
 import { IWeapon, ICachedWeapon } from "../Types/weapon";
+import { objectFromKeyMap } from "../Util/Util";
 
 /// Returns the closest (not necessarily valid) artifact, including errors as necessary
 export function validateArtifact(flex: IArtifact, id: string): { artifact: ICachedArtifact, errors: Displayable[] } {
@@ -141,7 +142,7 @@ function parseSubstats(obj: any): ISubstat[] {
 export function validateCharacter(flex: ICharacter): ICachedCharacter {
   // TODO: Add more validations to make sure the returned value is a "valid" character
   return {
-    equippedArtifacts: Object.fromEntries(allSlotKeys.map(slot => [slot, ""])) as any,
+    equippedArtifacts: objectFromKeyMap(allSlotKeys, () => ""),
     equippedWeapon: "",
     ...flex,
   }

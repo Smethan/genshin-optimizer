@@ -1,4 +1,4 @@
-import { clamp } from "./Util/Util";
+import { clamp, objectFromKeyMap } from "./Util/Util";
 import { hitTypes, hitMoves, hitElements, transformativeReactions, amplifyingReactions, transformativeReactionLevelMultipliers, crystalizeLevelMultipliers } from "./StatConstants"
 import { ICalculatedStats } from "./Types/stats";
 import { mergeStats } from "./Util/StatUtil";
@@ -244,7 +244,7 @@ function PreprocessFormulas(dependencyKeys: string[], stats: ICalculatedStats) {
 
       const modStats = Formula.computeModifier(s, s.modifiers)(s) // late-binding modifiers (arts mod)
       mergeStats(modStats, modFormula(s))
-      s.premod = Object.fromEntries(Object.keys(modifiers).map(key => [key, s[key]]))
+      s.premod = objectFromKeyMap(Object.keys(modifiers), key => s[key])
       // Apply modifiers
       mergeStats(s, modStats)
       mergeStats(s, { modifiers })
