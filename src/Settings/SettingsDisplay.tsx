@@ -99,6 +99,7 @@ function DownloadCard({ forceUpdate }) {
   const { t } = useTranslation(["settings"]);
   const numChar = database._getCharKeys().length
   const numArt = database._getArts().length
+  const numWeapon = database._getWeapons().length
   const downloadValid = Boolean(numChar || numArt)
   const deleteDB = () => {
     deleteDatabase(t, database);
@@ -108,8 +109,9 @@ function DownloadCard({ forceUpdate }) {
     <Card.Header><Trans t={t} i18nKey="downloadCard.databaseDownload" /></Card.Header>
     <Card.Body>
       <Row className="mb-2">
-        <Col xs={12} md={6}><Trans t={t} i18nKey="count.chars" /> {numChar}</Col>
-        <Col xs={12} md={6}><Trans t={t} i18nKey="count.arts" /> {numArt}</Col>
+        <Col xs={6} md={4}><Trans t={t} i18nKey="count.chars" /> {numChar}</Col>
+        <Col xs={6} md={4}><Trans t={t} i18nKey="count.arts" /> {numArt}</Col>
+        <Col xs={6} md={4}><Trans t={t} i18nKey="count.weapons" /> {numWeapon}</Col>
       </Row>
       <small><Trans t={t} i18nKey="downloadCard.databaseDisclaimer" /></small>
     </Card.Body>
