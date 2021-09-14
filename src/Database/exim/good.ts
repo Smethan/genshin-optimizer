@@ -61,7 +61,6 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
     const counter = counters.weaponCounter
     counter.total = data.weapons!.length
     counter.invalid = data.weapons!.length - weapons.length
-    counters.weaponCounter = counter
     const idsToRemove = new Set(oldDatabase._getWeapons().map(w => w.id))
     for (const weapon of weapons) {
       let { duplicated, upgraded } = oldDatabase.findDuplicateWeapons(weapon)
@@ -84,7 +83,6 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
     }
     counter.removed = idsToRemove.size
   }
-  console.log(weapons)
 
   if (characters) {
     const newCharKeys = new Set(characters.map(x => x.key))
