@@ -15,24 +15,35 @@ export function importGOOD(data: IGOOD, oldDatabase: ArtCharDatabase): ImportRes
 }
 
 function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | undefined {
-  const artifacts = data.artifacts?.map(parseArtifact).filter(x => x) as IArtifact[] | undefined
-  const weapons = data.weapons?.map(parseWeapon).filter(x => x) as IWeapon[] | undefined
-  const characters = data.characters?.map(parseCharacter).filter(x => x) as ICharacter[] | undefined
+  const counters = {
+    artifactCounter: { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, } as Counter,
+    weaponCounter: { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, } as Counter,
+    characterCounter: { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, } as Counter,
+  }
+
+  const artifacts = data.artifacts?.flatMap(a => {
+    const parsed = parseArtifact(a)
+    if (!parsed) counters.artifactCounter.invalid.push(a)
+    return parsed ? [parsed] : []
+  })
+  const weapons = data.weapons?.flatMap(w => {
+    const parsed = parseWeapon(w)
+    if (!parsed) counters.weaponCounter.invalid.push(w)
+    return parsed ? [parsed] : []
+  })
+  const characters = data.characters?.flatMap(c => {
+    const parsed = parseCharacter(c)
+    if (!parsed) counters.characterCounter.invalid.push(c)
+    return parsed ? [parsed] : []
+  })
 
   const hasArtifactLocations = artifacts?.some(art => art.location)
   const hasWeaponLocations = weapons?.some(weapon => weapon.location)
-
-  const counters = {
-    artifactCounter: { total: 0, invalid: 0, new: 0, updated: 0, unchanged: 0, removed: 0, },
-    weaponCounter: { total: 0, invalid: 0, new: 0, updated: 0, unchanged: 0, removed: 0, },
-    characterCounter: { total: 0, invalid: 0, new: 0, updated: 0, unchanged: 0, removed: 0, },
-  }
 
   // Match artifacts for counter, metadata, and locations
   if (artifacts) {
     const counter = counters.artifactCounter
     counter.total = data.artifacts!.length
-    counter.invalid = data.artifacts!.length - artifacts.length
     const idsToRemove = new Set(oldDatabase._getArts().map(a => a.id))
     for (const artifact of artifacts) {
       let { duplicated, upgraded } = oldDatabase.findDuplicates(artifact)
@@ -60,7 +71,6 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
   if (weapons) {
     const counter = counters.weaponCounter
     counter.total = data.weapons!.length
-    counter.invalid = data.weapons!.length - weapons.length
     const idsToRemove = new Set(oldDatabase._getWeapons().map(w => w.id))
     for (const weapon of weapons) {
       let { duplicated, upgraded } = oldDatabase.findDuplicateWeapons(weapon)
@@ -89,7 +99,6 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
     const oldCharKeys = new Set(oldDatabase._getCharKeys())
     const counter = counters.characterCounter
     counter.total = data.characters!.length
-    counter.invalid = data.characters!.length - characters.length
     counter.new = [...newCharKeys].filter(x => !oldCharKeys.has(x)).length
     counter.updated = [...newCharKeys].filter(x => oldCharKeys.has(x)).length
     counter.removed = [...oldCharKeys].filter(x => !newCharKeys.has(x)).length
@@ -125,11 +134,7 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
     setDBVersion(sandbox, 8)
   }
 
-  const charCount = sandbox.keys.filter(k => k.startsWith("char_")).length
-
   new ArtCharDatabase(sandbox) // validate storage entries
-
-  counters.characterCounter.invalid += charCount - sandbox.keys.filter(k => k.startsWith("char_")).length
   return { type: "GOOD", storage: sandbox, source, ...counters }
 }
 
@@ -177,7 +182,7 @@ type Counter = {
   updated: number,
   unchanged: number,
   removed: number,
-  invalid: number,
+  invalid: any[],
 }
 export type ImportResult = {
   type: "GOOD",

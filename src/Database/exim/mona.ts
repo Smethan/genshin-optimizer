@@ -5,7 +5,7 @@ import { ArtifactSetKey, SlotKey } from "../../Types/consts";
 import { importGOOD, ImportResult } from './good';
 
 const DefaultVersion = "1";
-const GetConvertedArtifactsOfVersion: Dict<string, (data: any) => { artifacts: IArtifact[], invalidCount: number }> = {
+const GetConvertedArtifactsOfVersion: Dict<string, (data: any) => { artifacts: IArtifact[], invalid: any[] }> = {
   "1": importMona1
 };
 
@@ -16,7 +16,7 @@ export function importMona(dataObj: any, oldDatabase: ArtCharDatabase): ImportRe
   if (!converted)
     return // TODO: Maybe add failure reason, or throws here
 
-  const { artifacts, invalidCount } = converted
+  const { artifacts, invalid } = converted
 
   const result = importGOOD({
     format: "GOOD",
@@ -24,16 +24,15 @@ export function importMona(dataObj: any, oldDatabase: ArtCharDatabase): ImportRe
     version: 1,
     artifacts: artifacts
   }, oldDatabase)
-  result!.artifactCounter!.invalid += invalidCount
+  result!.artifactCounter!.invalid.push(...invalid)
   return result
 }
 
 // backup 0: https://github.com/wormtql/genshin_artifact/blob/main/src/assets/artifacts/data/*/index.js
 // backup 1: https://github.com/YuehaiTeam/cocogoat/blob/main/src/App/export/Mona.ts
 
-function importMona1(dataObj: any): { artifacts: IArtifact[], invalidCount: number } {
-  let invalidCount = 0
-  const artifacts: IArtifact[] = []
+function importMona1(dataObj: any): { artifacts: IArtifact[], invalid: any[] } {
+  const invalid: any[] = [], artifacts: IArtifact[] = []
 
   for (const property in dataObj) {
     if (!(property in ArtifactSlotKeyMap))
@@ -41,11 +40,7 @@ function importMona1(dataObj: any): { artifacts: IArtifact[], invalidCount: numb
 
     for (const genshinArtArtifact of dataObj[property]) {
       const { setName, star, level, position, mainTag } = genshinArtArtifact
-      if (star < 3) {
-        // invalidCount++//do not increment since its technically not an invalid artifact, just not part of our system.
-        continue
-      }
-      const flex = parseArtifact({
+      const raw = {
         setKey: ArtifactSetKeyMap[setName],
         rarity: star,
         level,
@@ -60,10 +55,11 @@ function importMona1(dataObj: any): { artifacts: IArtifact[], invalidCount: numb
               value,
           }
         }),
-      })
+      }
+      const flex = parseArtifact(raw)
 
       if (!flex) {
-        invalidCount++
+        invalid.push(raw)
         continue
       }
 
@@ -71,7 +67,7 @@ function importMona1(dataObj: any): { artifacts: IArtifact[], invalidCount: numb
     }
   }
 
-  return { artifacts, invalidCount }
+  return { artifacts, invalid }
 }
 
 // Referencing https://wormtql.gitbook.io/mona-uranai/ (they don't seem to update this anymore...)
