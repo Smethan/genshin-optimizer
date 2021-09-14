@@ -216,7 +216,7 @@ function UploadAction(data: UploadData | undefined, reset: () => void) {
   }
 }
 
-function GOODUploadInfo({ data: { source, artifactCounter, characterCounter, weaponCounter }, data }: { data: GOODImportResult }) {
+function GOODUploadInfo({ data: { source, artifacts, characters, weapons }, data }: { data: GOODImportResult }) {
   const { t } = useTranslation("settings")
 
   console.log(data) // TODO: Display these info
@@ -227,9 +227,9 @@ function GOODUploadInfo({ data: { source, artifactCounter, characterCounter, wea
     <Card.Body>
       {!!source && <p><Trans t={t} i18nKey="uploadCard.dbSource" /> <strong>{source}</strong></p>}
       <Row>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.chars" /> {characterCounter.total}</Col>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.arts" /> {artifactCounter.total}</Col>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.weapons" /> {weaponCounter.total}</Col>
+        <Col xs={12} md={4}><Trans t={t} i18nKey="count.chars" /> {characters?.total ?? 0}</Col>
+        <Col xs={12} md={4}><Trans t={t} i18nKey="count.arts" /> {artifacts?.total ?? 0}</Col>
+        <Col xs={12} md={4}><Trans t={t} i18nKey="count.weapons" /> {weapons?.total ?? 0}</Col>
       </Row>
     </Card.Body>
   </Card>
@@ -249,7 +249,7 @@ function GOUploadInfo({ data: { charCount, artCount } }: { data: GOImportResult 
 function GOUploadAction({ data: { storage }, data, reset }: { data: GOImportResult | GOODImportResult, reset: () => void }) {
   const database = useContext(DatabaseContext)
   const { t } = useTranslation("settings")
-  const dataValid = data.type === "GO" ? data.charCount || data.artCount : (data.characterCounter?.total || data.artifactCounter?.total || data.weaponCounter?.total)
+  const dataValid = data.type === "GO" ? data.charCount || data.artCount : (data.characters?.total || data.artifacts?.total || data.weapons?.total)
   const replaceDB = () => {
     if (!window.confirm(t`uploadCard.goUpload.deleteDatabasePrompt`)) return
     dbStorage.removeForKeys(k => k.startsWith("artifact_") || k.startsWith("char_") || k.startsWith("weapon_"))

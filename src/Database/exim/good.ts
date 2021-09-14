@@ -15,35 +15,18 @@ export function importGOOD(data: IGOOD, oldDatabase: ArtCharDatabase): ImportRes
 }
 
 function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | undefined {
-  const counters = {
-    artifactCounter: { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, } as Counter,
-    weaponCounter: { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, } as Counter,
-    characterCounter: { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, } as Counter,
-  }
-
-  const artifacts = data.artifacts?.flatMap(a => {
-    const parsed = parseArtifact(a)
-    if (!parsed) counters.artifactCounter.invalid.push(a)
-    return parsed ? [parsed] : []
-  })
-  const weapons = data.weapons?.flatMap(w => {
-    const parsed = parseWeapon(w)
-    if (!parsed) counters.weaponCounter.invalid.push(w)
-    return parsed ? [parsed] : []
-  })
-  const characters = data.characters?.flatMap(c => {
-    const parsed = parseCharacter(c)
-    if (!parsed) counters.characterCounter.invalid.push(c)
-    return parsed ? [parsed] : []
-  })
-
-  const hasArtifactLocations = artifacts?.some(art => art.location)
-  const hasWeaponLocations = weapons?.some(weapon => weapon.location)
+  const source = data.source, storage = new SandboxStorage(oldDatabase.storage)
+  const result: ImportResult = { type: "GOOD", storage, source }
 
   // Match artifacts for counter, metadata, and locations
-  if (artifacts) {
-    const counter = counters.artifactCounter
-    counter.total = data.artifacts!.length
+  if (data.artifacts) {
+    const counter = newCounter()
+    const artifacts = data.artifacts.flatMap(a => {
+      const parsed = parseArtifact(a)
+      if (!parsed) counter.invalid.push(a)
+      return parsed ? [parsed] : []
+    })
+    const hasLocations = artifacts.some(art => art.location)
     const idsToRemove = new Set(oldDatabase._getArts().map(a => a.id))
     for (const artifact of artifacts) {
       let { duplicated, upgraded } = oldDatabase.findDuplicates(artifact)
@@ -56,7 +39,7 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
       const match = (duplicated[0] ?? upgraded[0]) as ICachedArtifact | undefined
       if (match) {
         idsToRemove.delete(match.id)
-        if (!hasArtifactLocations)
+        if (!hasLocations)
           artifact.location = match.location
       }
 
@@ -64,13 +47,24 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
       else if (upgraded.length) counter.updated++
       else counter.new++
     }
+
+    counter.total = data.artifacts.length
     counter.removed = idsToRemove.size
+    result.artifacts = counter
+
+    storage.removeForKeys(k => k.startsWith("artifact_"))
+    artifacts.forEach((a, i) => storage.set(`artifact_${i}`, a))
   }
 
   // Match weapons for counter, metadata, and locations
-  if (weapons) {
-    const counter = counters.weaponCounter
-    counter.total = data.weapons!.length
+  if (data.weapons) {
+    const counter = newCounter()
+    const weapons = data.weapons.flatMap(w => {
+      const parsed = parseWeapon(w)
+      if (!parsed) counter.invalid.push(w)
+      return parsed ? [parsed] : []
+    })
+    const hasLocations = weapons.some(weapon => weapon.location)
     const idsToRemove = new Set(oldDatabase._getWeapons().map(w => w.id))
     for (const weapon of weapons) {
       let { duplicated, upgraded } = oldDatabase.findDuplicateWeapons(weapon)
@@ -83,7 +77,7 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
       const match = (duplicated[0] ?? upgraded[0]) as ICachedWeapon | undefined
       if (match) {
         idsToRemove.delete(match.id)
-        if (!hasWeaponLocations)
+        if (!hasLocations)
           weapon.location = match.location
       }
 
@@ -91,51 +85,53 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
       else if (upgraded.length) counter.updated++
       else counter.new++
     }
+
+    counter.total = data.weapons!.length
     counter.removed = idsToRemove.size
+    result.weapons = counter
+
+    storage.removeForKeys(k => k.startsWith("weapon_"))
+    weapons.forEach((w, i) => storage.set(`weapon_${i}`, w))
   }
 
-  if (characters) {
+  if (data.characters) {
+    const invalid: any[] = []
+    const characters = data.characters.flatMap(c => {
+      const parsed = parseCharacter(c)
+      if (!parsed) invalid.push(c)
+      return parsed ? [parsed] : []
+    })
     const newCharKeys = new Set(characters.map(x => x.key))
     const oldCharKeys = new Set(oldDatabase._getCharKeys())
-    const counter = counters.characterCounter
-    counter.total = data.characters!.length
-    counter.new = [...newCharKeys].filter(x => !oldCharKeys.has(x)).length
-    counter.updated = [...newCharKeys].filter(x => oldCharKeys.has(x)).length
-    counter.removed = [...oldCharKeys].filter(x => !newCharKeys.has(x)).length
-  }
 
-  const sandbox = new SandboxStorage(oldDatabase.storage)
+    result.characters = {
+      total: data.characters!.length,
+      new: [...newCharKeys].filter(x => !oldCharKeys.has(x)).length,
+      updated: [...newCharKeys].filter(x => oldCharKeys.has(x)).length,
+      removed: [...oldCharKeys].filter(x => !newCharKeys.has(x)).length,
+      unchanged: 0,
+      invalid
+    }
 
-  if (artifacts) {
-    sandbox.removeForKeys(k => k.startsWith("artifact_"))
-    artifacts.forEach((a, i) => sandbox.set(`artifact_${i}`, a))
+    storage.removeForKeys(k => k.startsWith("char_"))
+    characters.forEach((c => storage.set(`char_${c.key}`, c)))
   }
-  if (weapons) {
-    sandbox.removeForKeys(k => k.startsWith("weapon_"))
-    weapons.forEach((w, i) => sandbox.set(`weapon_${i}`, w))
-  }
-  if (characters) {
-    sandbox.removeForKeys(k => k.startsWith("char_"))
-    characters.forEach((c => sandbox.set(`char_${c.key}`, c)))
-  }
-
-  const source = data.source
 
   if (source === GOSource) {
     const { dbVersion, artifactDisplay, characterDisplay, buildsDisplay } = data as unknown as IGO
     if (dbVersion < 8) return // Something doesn't look right here
-    setDBVersion(sandbox, dbVersion)
-    artifactDisplay && sandbox.set("ArtifactDisplay.state", artifactDisplay)
-    characterDisplay && sandbox.set("CharacterDisplay.state", characterDisplay)
-    buildsDisplay && sandbox.set("BuildsDisplay.state", buildsDisplay)
+    setDBVersion(storage, dbVersion)
+    artifactDisplay && storage.set("ArtifactDisplay.state", artifactDisplay)
+    characterDisplay && storage.set("CharacterDisplay.state", characterDisplay)
+    buildsDisplay && storage.set("BuildsDisplay.state", buildsDisplay)
   } else {
     // DO NOT CHANGE THE DB VERSION
     // Standard GOODv1 matches dbv8.
-    setDBVersion(sandbox, 8)
+    setDBVersion(storage, 8)
   }
 
-  new ArtCharDatabase(sandbox) // validate storage entries
-  return { type: "GOOD", storage: sandbox, source, ...counters }
+  new ArtCharDatabase(storage) // validate storage entries
+  return result
 }
 
 export function exportGOOD(storage: DBStorage): IGOOD & IGO {
@@ -188,7 +184,10 @@ export type ImportResult = {
   type: "GOOD",
   storage: DBStorage,
   source: string,
-  artifactCounter: Counter,
-  weaponCounter: Counter,
-  characterCounter: Counter,
+  artifacts?: Counter,
+  weapons?: Counter,
+  characters?: Counter,
+}
+function newCounter(): Counter {
+  return { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, }
 }

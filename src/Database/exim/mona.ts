@@ -24,7 +24,7 @@ export function importMona(dataObj: any, oldDatabase: ArtCharDatabase): ImportRe
     version: 1,
     artifacts: artifacts
   }, oldDatabase)
-  result!.artifactCounter!.invalid.push(...invalid)
+  result?.artifacts!.invalid.push(...invalid)
   return result
 }
 
