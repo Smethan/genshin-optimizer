@@ -172,7 +172,7 @@ type IGO = {
   buildsDisplay: any
 }
 
-type Counter = {
+export type ImportResultCounter = {
   total: number, // total # in file
   new: number,
   updated: number,
@@ -184,10 +184,10 @@ export type ImportResult = {
   type: "GOOD",
   storage: DBStorage,
   source: string,
-  artifacts?: Counter,
-  weapons?: Counter,
-  characters?: Counter,
+  artifacts?: ImportResultCounter,
+  weapons?: ImportResultCounter,
+  characters?: ImportResultCounter,
 }
-function newCounter(): Counter {
+function newCounter(): ImportResultCounter {
   return { total: 0, invalid: [], new: 0, updated: 0, unchanged: 0, removed: 0, }
 }

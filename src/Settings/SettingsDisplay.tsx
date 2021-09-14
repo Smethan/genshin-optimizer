@@ -7,7 +7,7 @@ import { Trans, useTranslation } from "react-i18next"
 import { ArtCharDatabase, DatabaseContext } from "../Database/Database"
 import { dbStorage } from '../Database/DBStorage'
 import { importGO, ImportResult as GOImportResult } from '../Database/exim/go'
-import { exportGOOD, importGOOD, ImportResult as GOODImportResult } from '../Database/exim/good'
+import { ImportResultCounter, exportGOOD, importGOOD, ImportResult as GOODImportResult } from '../Database/exim/good'
 import { importMona } from '../Database/exim/mona'
 import { languageCodeList } from "../i18n"
 import { useForceUpdate } from "../Util/ReactUtil"
@@ -218,19 +218,31 @@ function UploadAction(data: UploadData | undefined, reset: () => void) {
 
 function GOODUploadInfo({ data: { source, artifacts, characters, weapons }, data }: { data: GOODImportResult }) {
   const { t } = useTranslation("settings")
-
-  console.log(data) // TODO: Display these info
-  // TODO: Use different title if `source === "Genshin Optimizer (Mona)"` since that's internal format
-
   return <Card bg="darkcontent" text={"lightfont" as any}>
-    <Card.Header><Trans t={t} i18nKey="uploadCard.goodUpload.title" /> </Card.Header>
-    <Card.Body>
-      {!!source && <p><Trans t={t} i18nKey="uploadCard.dbSource" /> <strong>{source}</strong></p>}
-      <Row>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.chars" /> {characters?.total ?? 0}</Col>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.arts" /> {artifacts?.total ?? 0}</Col>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.weapons" /> {weapons?.total ?? 0}</Col>
+    <Card.Header><Trans t={t} i18nKey="uploadCard.dbSource" /> <strong>{source}</strong></Card.Header>
+    <Card.Body className="mb-n2">
+      <MergeResult result={artifacts} type="arts" />
+      <MergeResult result={weapons} type="weapons" />
+      <MergeResult result={characters} type="chars" />
+    </Card.Body>
+  </Card>
+}
+function MergeResult({ result, type }: { result?: ImportResultCounter, type: string }) {
+  const { t } = useTranslation("settings")
+  if (!result) return null
+  return <Card bg="lightcontent" text={"lightfont" as any} className="mb-2">
+    <Card.Header><Trans t={t} i18nKey={`count.${type}`} /> {result.total ?? 0}</Card.Header>
+    <Card.Body className="mb-n2">
+      <Row xs={12} md={4} className="mb-2">
+        <Col><Trans t={t} i18nKey="count.new" /> <strong>{result.new}</strong> / {result.total}</Col>
+        <Col><Trans t={t} i18nKey="count.updated" /> <strong>{result.updated}</strong> / {result.total}</Col>
+        <Col><Trans t={t} i18nKey="count.unchanged" /> <strong>{result.unchanged}</strong> / {result.total}</Col>
+        <Col className="text-warning"><Trans t={t} i18nKey="count.removed" /> <strong>{result.removed}</strong></Col>
       </Row>
+      {!!result.invalid?.length && <div>
+        <h6 className="text-danger"><Trans t={t} i18nKey="count.invalid" /> <strong>{result.invalid.length}</strong> / {result.total}</h6>
+        <textarea className="w-100 text-monospace mb-2" value={JSON.stringify(result.invalid, undefined, 2)} disabled style={{ minHeight: "10em" }} />
+      </div>}
     </Card.Body>
   </Card>
 }

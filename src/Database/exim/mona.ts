@@ -20,7 +20,7 @@ export function importMona(dataObj: any, oldDatabase: ArtCharDatabase): ImportRe
 
   const result = importGOOD({
     format: "GOOD",
-    source: "Genshin Optimizer (Mona)",
+    source: "mona-uranai",
     version: 1,
     artifacts: artifacts
   }, oldDatabase)
