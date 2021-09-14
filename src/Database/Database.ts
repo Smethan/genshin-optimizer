@@ -8,6 +8,7 @@ import { validateArtifact, parseCharacter, parseArtifact, removeArtifactCache, v
 import { DBStorage, dbStorage } from "./DBStorage";
 import { ICachedWeapon, IWeapon } from "../Types/weapon";
 import { createContext } from "react";
+import { defaultInitialWeapon } from "../Weapon/WeaponUtil";
 
 export class ArtCharDatabase {
   storage: DBStorage
@@ -91,9 +92,21 @@ export class ArtCharDatabase {
         if (migrated) this.storage.set(key, flex)
       }
     }
+    const weaponIds = new Set(this.weapons.keys)
     for (const [charKey, char] of Object.entries(this.chars.data)) {
-      if (!char.equippedWeapon)
-        this.removeChar(charKey) // Remove characters w/o weapons
+      if (!char.equippedWeapon) {
+        // A default "sword" should work well enough for this case.
+        // We'd have to pull the hefty character sheet otherwise.
+        const weapon = defaultInitialWeapon("sword")
+        const weaponId = generateRandomWeaponID(weaponIds)
+        weapon.location = charKey
+        char.equippedWeapon = weaponId
+
+        weaponIds.add(weaponId)
+        this.weapons.set(weaponId, weapon)
+        this.storage.set(weaponId, removeWeaponCache(weapon))
+        // No need to set anything on character side.
+      }
     }
   }
 
@@ -110,7 +123,7 @@ export class ArtCharDatabase {
     this.weapons.set(key, weapon)
   }
   // TODO: Make theses `_` functions private once we migrate to use `followXXX`,
-  // or de-underscored it if we decide that these are to stay
+  // or de-underscore it if we decide that these are to stay
   _getArt(key: string) { return this.arts.get(key) }
   _getChar(key: CharacterKey | "") { return key ? this.chars.get(key) : undefined }
   _getArts() { return this.arts.values }
