@@ -148,7 +148,7 @@ export function validateCharacter(flex: ICharacter): ICachedCharacter {
   }
 }
 /// Returns the closest flex character, or undefined if it's not recoverable
-export function parseCharacter(obj: any, key: string): ICharacter | undefined {
+export function parseCharacter(obj: any): ICharacter | undefined {
   if (typeof obj !== "object") return
 
   let {
@@ -156,8 +156,7 @@ export function parseCharacter(obj: any, key: string): ICharacter | undefined {
     baseStatOverrides, talent, infusionAura, constellation, buildSettings,
   } = obj
 
-  if (key !== `char_${characterKey}` ||
-    !allCharacterKeys.includes(characterKey) ||
+  if (!allCharacterKeys.includes(characterKey) ||
     typeof level !== "number" || level < 0 || level > 90)
     return // non-recoverable
 

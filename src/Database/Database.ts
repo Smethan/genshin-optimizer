@@ -31,8 +31,8 @@ export class ArtCharDatabase {
     // Load into memory and verify database integrity
     for (const key of storage.keys) {
       if (key.startsWith("char_")) {
-        const flex = parseCharacter(storage.get(key), key)
-        if (!flex) {
+        const flex = parseCharacter(storage.get(key))
+        if (!flex || key !== `char_${flex.key}`) {
           // Non-recoverable
           storage.remove(key)
           continue
@@ -141,7 +141,7 @@ export class ArtCharDatabase {
   updateChar(value: Partial<ICharacter>): void {
     const key = value.key!
     const oldChar = this._getChar(key)
-    const parsedChar = parseCharacter({ ...oldChar, ...(value as ICharacter) }, `char_${key}`)
+    const parsedChar = parseCharacter({ ...oldChar, ...(value as ICharacter) })
     if (!parsedChar) return
 
     const newChar = validateCharacter({ ...oldChar, ...parsedChar })
@@ -278,7 +278,7 @@ export class ArtCharDatabase {
     }
   }
 
-  findDuplicates(editorArt: IArtifact): { duplicated: string[], upgraded: string[] } {
+  findDuplicates(editorArt: IArtifact): { duplicated: ICachedArtifact[], upgraded: ICachedArtifact[] } {
     const { setKey, rarity, level, slotKey, mainStatKey, substats } = editorArt
 
     const candidates = this._getArts().filter(candidate =>
@@ -316,8 +316,32 @@ export class ArtCharDatabase {
           substat.key === candidateSubstat.key && // Or same slot
           substat.value === candidateSubstat.value
         )))
+    return { duplicated, upgraded }
+  }
 
-    return { duplicated: duplicated.map(({ id }) => id), upgraded: upgraded.map(({ id }) => id) }
+  findDuplicateWeapons(weapon: IWeapon): { duplicated: ICachedWeapon[], upgraded: ICachedWeapon[] } {
+    const { key, level, ascension, refine } = weapon
+
+    const candidates = this._getWeapons().filter(candidate =>
+      key === candidate.key &&
+      level >= candidate.level &&
+      ascension >= candidate.ascension &&
+      refine >= candidate.refine
+    )
+
+    // Strictly upgraded weapons
+    const upgraded = candidates.filter(candidate =>
+      level > candidate.level ||
+      ascension > candidate.ascension ||
+      refine > candidate.refine
+    )
+    // Strictly duplicated weapons
+    const duplicated = candidates.filter(candidate =>
+      level === candidate.level &&
+      ascension === candidate.ascension &&
+      refine === candidate.refine
+    )
+    return { duplicated, upgraded }
   }
 }
 
