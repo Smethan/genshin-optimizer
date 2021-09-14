@@ -22,20 +22,17 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
   const hasArtifactLocations = artifacts?.some(art => art.location)
   const hasWeaponLocations = weapons?.some(weapon => weapon.location)
 
-  const counters: {
-    artifactCounter?: Counter,
-    weaponCounter?: Counter,
-    characterCounter?: Counter,
-  } = {}
+  const counters = {
+    artifactCounter: { total: 0, invalid: 0, new: 0, updated: 0, unchanged: 0, removed: 0, },
+    weaponCounter: { total: 0, invalid: 0, new: 0, updated: 0, unchanged: 0, removed: 0, },
+    characterCounter: { total: 0, invalid: 0, new: 0, updated: 0, unchanged: 0, removed: 0, },
+  }
 
   // Match artifacts for counter, metadata, and locations
   if (artifacts) {
-    const counter: Counter = {
-      total: data.artifacts!.length,
-      invalid: data.artifacts!.length - artifacts.length,
-      new: 0, updated: 0, unchanged: 0, removed: 0,
-    }
-    counters.artifactCounter = counter
+    const counter = counters.artifactCounter
+    counter.total = data.artifacts!.length
+    counter.invalid = data.artifacts!.length - artifacts.length
     const idsToRemove = new Set(oldDatabase._getArts().map(a => a.id))
     for (const artifact of artifacts) {
       let { duplicated, upgraded } = oldDatabase.findDuplicates(artifact)
@@ -61,11 +58,9 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
 
   // Match weapons for counter, metadata, and locations
   if (weapons) {
-    const counter: Counter = {
-      total: data.weapons!.length,
-      invalid: data.weapons!.length - weapons.length,
-      new: 0, updated: 0, unchanged: 0, removed: 0,
-    }
+    const counter = counters.weaponCounter
+    counter.total = data.weapons!.length
+    counter.invalid = data.weapons!.length - weapons.length
     counters.weaponCounter = counter
     const idsToRemove = new Set(oldDatabase._getWeapons().map(w => w.id))
     for (const weapon of weapons) {
@@ -94,14 +89,12 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
   if (characters) {
     const newCharKeys = new Set(characters.map(x => x.key))
     const oldCharKeys = new Set(oldDatabase._getCharKeys())
-    counters.characterCounter = {
-      total: data.characters!.length,
-      invalid: data.characters!.length - characters.length,
-      new: [...newCharKeys].filter(x => !oldCharKeys.has(x)).length,
-      updated: [...newCharKeys].filter(x => oldCharKeys.has(x)).length,
-      unchanged: 0,
-      removed: [...oldCharKeys].filter(x => !newCharKeys.has(x)).length,
-    }
+    const counter = counters.characterCounter
+    counter.total = data.characters!.length
+    counter.invalid = data.characters!.length - characters.length
+    counter.new = [...newCharKeys].filter(x => !oldCharKeys.has(x)).length
+    counter.updated = [...newCharKeys].filter(x => oldCharKeys.has(x)).length
+    counter.removed = [...oldCharKeys].filter(x => !newCharKeys.has(x)).length
   }
 
   const sandbox = new SandboxStorage(oldDatabase.storage)
@@ -134,7 +127,11 @@ function importGOOD1(data: IGOOD, oldDatabase: ArtCharDatabase): ImportResult | 
     setDBVersion(sandbox, 8)
   }
 
+  const charCount = sandbox.keys.filter(k => k.startsWith("char_")).length
+
   new ArtCharDatabase(sandbox) // validate storage entries
+
+  counters.characterCounter.invalid += charCount - sandbox.keys.filter(k => k.startsWith("char_")).length
   return { type: "GOOD", storage: sandbox, source, ...counters }
 }
 
@@ -188,7 +185,7 @@ export type ImportResult = {
   type: "GOOD",
   storage: DBStorage,
   source: string,
-  artifactCounter?: Counter,
-  weaponCounter?: Counter,
-  characterCounter?: Counter,
+  artifactCounter: Counter,
+  weaponCounter: Counter,
+  characterCounter: Counter,
 }

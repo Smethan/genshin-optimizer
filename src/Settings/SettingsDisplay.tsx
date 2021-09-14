@@ -220,7 +220,6 @@ function GOODUploadInfo({ data: { source, artifactCounter, characterCounter, wea
   const { t } = useTranslation("settings")
 
   console.log(data) // TODO: Display these info
-
   // TODO: Use different title if `source === "Genshin Optimizer (Mona)"` since that's internal format
 
   return <Card bg="darkcontent" text={"lightfont" as any}>
@@ -228,9 +227,9 @@ function GOODUploadInfo({ data: { source, artifactCounter, characterCounter, wea
     <Card.Body>
       {!!source && <p><Trans t={t} i18nKey="uploadCard.dbSource" /> <strong>{source}</strong></p>}
       <Row>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.chars" /> {characterCounter?.total ?? 0}</Col>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.arts" /> {artifactCounter?.total ?? 0}</Col>
-        <Col xs={12} md={4}><Trans t={t} i18nKey="count.weapons" /> {weaponCounter?.total ?? 0}</Col>
+        <Col xs={12} md={4}><Trans t={t} i18nKey="count.chars" /> {characterCounter.total}</Col>
+        <Col xs={12} md={4}><Trans t={t} i18nKey="count.arts" /> {artifactCounter.total}</Col>
+        <Col xs={12} md={4}><Trans t={t} i18nKey="count.weapons" /> {weaponCounter.total}</Col>
       </Row>
     </Card.Body>
   </Card>
