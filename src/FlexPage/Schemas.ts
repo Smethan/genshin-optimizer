@@ -171,7 +171,7 @@ const characterV2 = object({
   levelKey: string,
   infusionAura: element,
   talentLevelKeys: object({ auto: uint(1), skill: uint(1), burst: uint(1) }),
-  bonusStats: sparse(string, float),
+  baseStatOverrides: sparse(string, float),
   weapon: weaponV2,
   conditionalValues,
   reserved: array(uint(1)),
@@ -193,13 +193,13 @@ const characterV2 = object({
     if (isAscended) {
       value.ascension += 1
     }
-    if (value.bonusStats.characterLevel) {
-      value.level = value.bonusStats.characterLevel
-      delete value.bonusStats.characterLevel
+    if (value.baseStatOverrides.characterLevel) {
+      value.level = value.baseStatOverrides.characterLevel
+      delete value.baseStatOverrides.characterLevel
     }
-    if (value.bonusStats.weaponLevel) {
-      value.weapon.level = value.bonusStats.weaponLevel
-      delete value.bonusStats.weaponLevel
+    if (value.baseStatOverrides.weaponLevel) {
+      value.weapon.level = value.baseStatOverrides.weaponLevel
+      delete value.baseStatOverrides.weaponLevel
     }
     if (value.overrideLevel) {
       value.level = value.overrideLevel
