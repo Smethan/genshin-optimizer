@@ -30,12 +30,14 @@ import { ICachedCharacter } from '../Types/character';
 import { allSlotKeys, ArtifactSetKey, CharacterKey, SetNum, SlotKey } from '../Types/consts';
 import { IFieldDisplay } from '../Types/IFieldDisplay';
 import { ICalculatedStats } from '../Types/stats';
-import { useForceUpdate, usePromise } from '../Util/ReactUtil';
 import { timeStringMs } from '../Util/TimeUtil';
 import { crawlObject, deepClone, objectFromKeyMap } from '../Util/Util';
 import WeaponSheet from '../Weapon/WeaponSheet';
 import { buildContext, calculateTotalBuildNumber, maxBuildsToShowList } from './Build';
 import { initialBuildSettings } from './BuildSetting';
+import useForceUpdate from '../ReactHooks/useForceUpdate';
+import usePromise from '../ReactHooks/usePromise';
+import useCharacterReducer from '../ReactHooks/useCharacterReducer';
 const InfoDisplay = React.lazy(() => import('./InfoDisplay'));
 
 //lazy load the character display
@@ -290,8 +292,6 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
     crawlObject(initialStats?.conditionalValues?.artifact, [], v => Array.isArray(v), () => count++)
     return count
   }, [initialStats?.conditionalValues])
-  //rudimentary dispatcher, definitely not the same API as the real characterDispatch.
-  const characterDispatch = useCallback(val => database.updateChar({ ...character, ...val }), [character, database])
   return <Container className="mt-2"> <buildContext.Provider value={{ equippedBuild: initialStats }}>
 
     <InfoComponent
@@ -307,7 +307,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
         setshowCharacterModal(false)
       }
     }} />
-    {!!initialStats && <ArtConditionalModal {...{ showArtCondModal, setshowArtCondModal, initialStats, characterDispatch, artifactCondCount }} />}
+    {!!initialStats && !!characterKey && <ArtConditionalModal {...{ showArtCondModal, setshowArtCondModal, initialStats, characterKey, artifactCondCount }} />}
     <Row className="mt-2 mb-2">
       <Col>
         {/* Build Generator Editor */}
@@ -369,8 +369,8 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
                       </ButtonGroup>
                     </Card.Header>
                     {setKey ? <Card.Body><Row className="mb-n2">
-                      {!!initialStats && Object.keys(artifactSheets?.[setKey].setEffects ?? {}).map(setNKey => parseInt(setNKey) as SetNum).filter(setNkey => setNkey <= setNum).map(setNumKey =>
-                        <SetEffectDisplay newBuild={undefined} key={setKey + setNumKey} {...{ setKey, setNumKey, equippedBuild: initialStats, characterDispatch, editable: true }} />)}
+                      {!!initialStats && !!characterKey && Object.keys(artifactSheets?.[setKey].setEffects ?? {}).map(setNKey => parseInt(setNKey) as SetNum).filter(setNkey => setNkey <= setNum).map(setNumKey =>
+                        <SetEffectDisplay newBuild={undefined} key={setKey + setNumKey} {...{ setKey, setNumKey, equippedBuild: initialStats, characterKey, editable: true }} />)}
                     </Row></Card.Body> : null}
                   </Card>
                 </Col>)}
@@ -539,9 +539,12 @@ function BuildModal({ build, showCharacterModal, characterKey, selectCharacter, 
   </Modal>
 }
 
-function ArtConditionalModal({ showArtCondModal, setshowArtCondModal, initialStats, characterDispatch, artifactCondCount }) {
+function ArtConditionalModal({ showArtCondModal, setshowArtCondModal, initialStats, characterKey, artifactCondCount }: {
+  showArtCondModal, setshowArtCondModal, initialStats: ICalculatedStats, characterKey: CharacterKey, artifactCondCount
+}) {
   const closeArtCondModal = useCallback(() => setshowArtCondModal(false), [setshowArtCondModal])
   const artifactSheets = usePromise(ArtifactSheet.getAll(), [])
+  const characterDispatch = useCharacterReducer(characterKey)
   if (!artifactSheets) return null
   const artSetKeyList = Object.entries(ArtifactSheet.setKeysByRarities(artifactSheets)).reverse().flatMap(([, sets]) => sets)
   return <Modal show={showArtCondModal} onHide={closeArtCondModal} size="xl" contentClassName="bg-transparent">
@@ -585,7 +588,7 @@ function ArtConditionalModal({ showArtCondModal, setshowArtCondModal, initialSta
                 </Card.Header>
                 <Card.Body><Row className="mb-n2">
                   {Boolean(setKey) && Object.keys(sheet.setEffects).map(key => parseInt(key) as SetNum).map(setNumKey =>
-                    <SetEffectDisplay newBuild={undefined} key={setKey + setNumKey} {...{ setKey, setNumKey, equippedBuild: initialStats, editable: true, characterDispatch, }} />)}
+                    <SetEffectDisplay newBuild={undefined} key={setKey + setNumKey} {...{ setKey, setNumKey, equippedBuild: initialStats, editable: true, characterKey }} />)}
                 </Row></Card.Body>
               </Card>
             </Col>
@@ -631,22 +634,18 @@ function StatFilterItem({ statKey, statKeys = [], min, close, setFilter, disable
   </InputGroup>
 }
 
-function HitModeCard({ characterSheet, character, build, className, disabled }: { characterSheet: CharacterSheet, character: ICachedCharacter, build: ICalculatedStats, className: string, disabled: boolean }) {
-  const database = useContext(DatabaseContext)
-  const setHitmode = useCallback(({ hitMode }) => database.updateChar({ ...character, hitMode }), [character, database])
-  const setReactionMode = useCallback(({ reactionMode }) => database.updateChar({ ...character, reactionMode }), [character, database])
-  const setInfusionAura = useCallback(({ infusionAura }) => database.updateChar({ ...character, infusionAura }), [character, database])
+function HitModeCard({ characterSheet, character, character: { key: characterKey }, build, className, disabled }: { characterSheet: CharacterSheet, character: ICachedCharacter, build: ICalculatedStats, className: string, disabled: boolean }) {
   if (!character) return null
   return <Card bg="lightcontent" text={"lightfont" as any} className={className}>
     <Card.Header>
       <Row>
         <Col>Hit Mode Options</Col>
-        <Col xs="auto"><InfusionAuraDropdown characterSheet={characterSheet} character={character} characterDispatch={setInfusionAura} disabled={disabled} /></Col>
+        <Col xs="auto"><InfusionAuraDropdown characterSheet={characterSheet} character={character} disabled={disabled} /></Col>
       </Row>
     </Card.Header>
     <Card.Body className="mb-n2">
-      <HitModeToggle hitMode={character.hitMode} characterDispatch={setHitmode} className="w-100 mb-2" disabled={disabled} />
-      <ReactionToggle build={build} character={character} characterDispatch={setReactionMode} className="w-100 mb-2" disabled={disabled} />
+      <HitModeToggle characterKey={characterKey} hitMode={character.hitMode} className="w-100 mb-2" disabled={disabled} />
+      <ReactionToggle build={build} character={character} className="w-100 mb-2" disabled={disabled} />
     </Card.Body>
   </Card >
 }

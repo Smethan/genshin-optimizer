@@ -7,16 +7,17 @@ import { ArtifactSheet } from "../../Artifact/ArtifactSheet";
 import { buildContext } from "../../Build/Build";
 import StatIcon, { uncoloredEleIcons } from "../../Components/StatIcon";
 import Formula from "../../Formula";
+import useCharacterReducer from "../../ReactHooks/useCharacterReducer";
+import usePromise from "../../ReactHooks/usePromise";
 import Stat, { FormulaDisplay } from "../../Stat";
 import { GetDependencies } from "../../StatDependency";
 import { ICachedCharacter } from "../../Types/character";
-import { allElements, ArtifactSetKey } from "../../Types/consts";
+import { allElements, ArtifactSetKey, CharacterKey } from "../../Types/consts";
 import { IFieldDisplay } from "../../Types/IFieldDisplay";
 import { ICalculatedStats } from "../../Types/stats";
-import { usePromise } from "../../Util/ReactUtil";
+import { characterBaseStats } from "../../Util/StatUtil";
 import WeaponSheet from "../../Weapon/WeaponSheet";
 import Character from "../Character";
-import type { characterReducerAction } from "../CharacterDisplayCard";
 import CharacterSheet from "../CharacterSheet";
 import { getFormulaTargetsDisplayHeading } from "../CharacterUtil";
 import StatInput from "../StatInput";
@@ -28,11 +29,11 @@ const infusionVals = {
 type InfusionAuraDropdownProps = {
   characterSheet: CharacterSheet,
   character: ICachedCharacter,
-  characterDispatch: (any: characterReducerAction) => void,
   className?: string
   disabled?: boolean
 }
-export function InfusionAuraDropdown({ characterSheet, character: { infusionAura = "" }, characterDispatch, className, disabled = false }: InfusionAuraDropdownProps) {
+export function InfusionAuraDropdown({ characterSheet, character: { infusionAura = "", key: characterKey }, className, disabled = false }: InfusionAuraDropdownProps) {
+  const characterDispatch = useCharacterReducer(characterKey)
   if (!characterSheet.isMelee()) return null
   return <Dropdown className={className}>
     <Dropdown.Toggle variant={infusionAura || "secondary"} disabled={disabled}>{infusionVals[infusionAura]}</Dropdown.Toggle>
@@ -45,11 +46,11 @@ export function InfusionAuraDropdown({ characterSheet, character: { infusionAura
 type ReactionToggleProps = {
   character: ICachedCharacter,
   build: ICalculatedStats,
-  characterDispatch: (any: characterReducerAction) => void,
   className: string
   disabled?: boolean
 }
-export function ReactionToggle({ character: { reactionMode = null, infusionAura }, build, characterDispatch, className, disabled = false }: ReactionToggleProps) {
+export function ReactionToggle({ character: { reactionMode = null, infusionAura, key: characterKey }, build, className, disabled = false }: ReactionToggleProps) {
+  const characterDispatch = useCharacterReducer(characterKey)
   if (!build) return null
   const charEleKey = build.characterEle
   if (!["pyro", "hydro", "cryo"].includes(charEleKey) && !["pyro", "hydro", "cryo"].includes(infusionAura)) return null
@@ -70,7 +71,8 @@ export function ReactionToggle({ character: { reactionMode = null, infusionAura 
     </ToggleButton >}
   </ToggleButtonGroup>
 }
-export function HitModeToggle({ hitMode, characterDispatch, className, disabled = false }) {
+export function HitModeToggle({ characterKey, hitMode, className, disabled = false }: { characterKey: CharacterKey, hitMode: string, className?: string, disabled?: boolean }) {
+  const characterDispatch = useCharacterReducer(characterKey)
   const v = s => s ? "success" : "secondary"
   return <ToggleButtonGroup type="radio" value={hitMode} name="hitOptions" onChange={m => characterDispatch({ hitMode: m })} className={className} >
     <ToggleButton value="avgHit" variant={v(hitMode === "avgHit")} disabled={disabled} >Avg. DMG</ToggleButton>
@@ -176,20 +178,21 @@ type DamageOptionsAndCalculationProps = {
     artifactSheets: StrictDict<ArtifactSetKey, ArtifactSheet>
   }
   character: ICachedCharacter,
-  characterDispatch: (any: characterReducerAction) => void,
   className: string
 }
-export default function DamageOptionsAndCalculation({ sheets, sheets: { characterSheet, weaponSheet }, character, character: { hitMode }, characterDispatch, className }: DamageOptionsAndCalculationProps) {
+export default function DamageOptionsAndCalculation({ sheets, sheets: { characterSheet, weaponSheet }, character, character: { hitMode, key: characterKey }, className }: DamageOptionsAndCalculationProps) {
   const { newBuild, equippedBuild } = useContext(buildContext)
+  const characterDispatch = useCharacterReducer(characterKey)
   //choose which one to display stats for
   const build = newBuild ? newBuild : equippedBuild!
+  const charBaseStats = characterBaseStats(character)
   return <div className={className}>
     <Card bg="lightcontent" text={"lightfont" as any} className="mb-2">
       <Card.Header>
         <Row className="mb-n2">
-          <Col xs="auto"><InfusionAuraDropdown characterSheet={characterSheet} character={character} characterDispatch={characterDispatch} className="mb-2" /></Col>
-          <Col xs="auto"><HitModeToggle hitMode={hitMode} characterDispatch={characterDispatch} className="mb-2" /></Col>
-          <Col xs="auto"><ReactionToggle character={character} build={build} characterDispatch={characterDispatch} className="mb-2" /></Col>
+          <Col xs="auto"><InfusionAuraDropdown characterSheet={characterSheet} character={character} className="mb-2" /></Col>
+          <Col xs="auto"><HitModeToggle characterKey={characterKey} hitMode={hitMode} className="mb-2" /></Col>
+          <Col xs="auto"><ReactionToggle character={character} build={build} className="mb-2" /></Col>
         </Row>
       </Card.Header>
     </Card>
@@ -224,26 +227,26 @@ export default function DamageOptionsAndCalculation({ sheets, sheets: { characte
                   <Col xs={12} xl={6} className="mb-2">
                     <StatInput
                       name={<b>Enemy Level</b>}
-                      value={Character.getStatValueWithOverride(character, characterSheet, weaponSheet, "enemyLevel")}
+                      value={Character.getStatValueWithOverride(character, "enemyLevel")}
                       placeholder={Stat.getStatNameRaw("enemyLevel")}
-                      defaultValue={Character.getBaseStatValue(character, characterSheet, weaponSheet, "enemyLevel")}
-                      onValueChange={value => characterDispatch({ type: "statOverride", statKey: "enemyLevel", value })}
+                      defaultValue={charBaseStats.enemyLevel}
+                      onValueChange={value => characterDispatch({ type: "bonusStats", statKey: "enemyLevel", value })}
                     />
                   </Col>
                   {["physical", ...allElements].map(eleKey => {
                     let statKey = `${eleKey}_enemyRes_`
                     let immunityStatKey = `${eleKey}_enemyImmunity`
-                    let elementImmunity = Character.getStatValueWithOverride(character, characterSheet, weaponSheet, immunityStatKey)
+                    let elementImmunity = Character.getStatValueWithOverride(character, immunityStatKey)
                     return <Col xs={12} xl={6} key={eleKey} className="mb-2">
                       <StatInput
-                        prependEle={<Button variant={eleKey} onClick={() => characterDispatch({ type: "statOverride", statKey: immunityStatKey, value: !elementImmunity })} className="text-darkcontent">
+                        prependEle={<Button variant={eleKey} onClick={() => characterDispatch({ type: "bonusStats", statKey: immunityStatKey, value: !elementImmunity })} className="text-darkcontent">
                           <FontAwesomeIcon icon={elementImmunity ? faCheckSquare : faSquare} className="fa-fw" /> Immunity
                         </Button>}
                         name={<b>{Stat.getStatName(statKey)}</b>}
-                        value={Character.getStatValueWithOverride(character, characterSheet, weaponSheet, statKey)}
+                        value={Character.getStatValueWithOverride(character, statKey)}
                         placeholder={Stat.getStatNameRaw(statKey)}
-                        defaultValue={Character.getBaseStatValue(character, characterSheet, weaponSheet, statKey)}
-                        onValueChange={value => characterDispatch({ type: "statOverride", statKey, value })}
+                        defaultValue={charBaseStats[statKey]}
+                        onValueChange={value => characterDispatch({ type: "bonusStats", statKey, value })}
                         disabled={elementImmunity}
                         percent
                       />

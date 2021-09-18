@@ -11,7 +11,6 @@ import Stat from '../Stat';
 import { allSubstats, ICachedArtifact, IArtifact, ISubstat } from '../Types/artifact';
 import { ArtifactRarity, SlotKey } from '../Types/consts';
 import { randomizeArtifact } from '../Util/ArtifactUtil';
-import { usePromise } from '../Util/ReactUtil';
 import { valueString } from '../Util/UIUtil';
 import { clamp, deepClone } from '../Util/Util';
 import Artifact from './Artifact';
@@ -22,6 +21,7 @@ import SlotNameWithIcon from './Component/SlotNameWIthIcon';
 import PercentBadge from './PercentBadge';
 import UploadDisplay from './UploadDisplay';
 import artifactSubstatRollCorrection from './artifact_sub_rolls_correction_gen.json'
+import usePromise from '../ReactHooks/usePromise';
 
 type ArtifactEditorArgument = { artifactIdToEdit: string, cancelEdit: () => void }
 const allSubstatFilter = new Set(allSubstats)
