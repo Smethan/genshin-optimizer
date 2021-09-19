@@ -181,6 +181,10 @@ export function parseCharacter(obj: any): ICharacter | undefined {
   if (buildSettings && typeof buildSettings === "object") {//buildSettings
     let { setFilters, statFilters, mainStatKeys, optimizationTarget, mainStatAssumptionLevel, useExcludedArts, useEquippedArts, builds, buildDate, maxBuildsToShow } = buildSettings ?? {}
     if (!Array.isArray(setFilters)) setFilters = initialBuildSettings().setFilters
+
+    //move all the empty entries to the back
+    setFilters = [...setFilters.filter(s => s.key), ...setFilters.filter(s => !s.key)]
+
     if (typeof statFilters !== "object") statFilters = {}
 
     if (!mainStatKeys || !mainStatKeys.sands || !mainStatKeys.goblet || !mainStatKeys.circlet) {

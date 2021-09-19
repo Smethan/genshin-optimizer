@@ -1,7 +1,7 @@
 import { faCheckSquare, faSquare, faWindowMaximize, faWindowMinimize } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useContext, useMemo } from 'react';
-import { Accordion, AccordionContext, Button, Card, Col, Dropdown, Row, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
+import { Accordion, AccordionContext, Badge, Button, Card, Col, Dropdown, Row, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { useAccordionToggle } from 'react-bootstrap/AccordionToggle';
 import { ArtifactSheet } from "../../Artifact/ArtifactSheet";
 import { buildContext } from "../../Build/Build";
@@ -126,6 +126,50 @@ function CalculationDisplay({ sheets, build }: {
     })}
   </div>
 }
+
+export function EnemyEditor({ character, character: { key: characterKey, }, bsProps = { xs: 12, xl: 6 } }: { character: ICachedCharacter, bsProps?: object }) {
+  const characterDispatch = useCharacterReducer(characterKey)
+  const charBaseStats = characterBaseStats(character)
+  return <Card className="mb-2" bg="darkcontent" text={"lightfont" as any}>
+    <Card.Header><h6>Enemy Editor</h6></Card.Header>
+    <Card.Body className="p-2">
+      <Button variant="warning" size="sm" className="mb-2">
+        <a href="https://genshin-impact.fandom.com/wiki/Resistance#Base_Enemy_Resistances" target="_blank" rel="noreferrer">To get the specific resistance values of enemies, please visit the wiki.</a>
+      </Button >
+      <Row >
+        <Col className="mb-2" {...bsProps}>
+          <StatInput
+            name={<b>Enemy Level</b>}
+            value={Character.getStatValueWithOverride(character, "enemyLevel")}
+            placeholder={Stat.getStatNameRaw("enemyLevel")}
+            defaultValue={charBaseStats.enemyLevel}
+            onValueChange={value => characterDispatch({ type: "bonusStats", statKey: "enemyLevel", value })}
+          />
+        </Col>
+        {["physical", ...allElements].map(eleKey => {
+          let statKey = `${eleKey}_enemyRes_`
+          let immunityStatKey = `${eleKey}_enemyImmunity`
+          let elementImmunity = Character.getStatValueWithOverride(character, immunityStatKey)
+          return <Col key={eleKey} className="mb-2" {...bsProps}>
+            <StatInput
+              prependEle={<Button variant={eleKey} onClick={() => characterDispatch({ type: "bonusStats", statKey: immunityStatKey, value: !elementImmunity })} className="text-darkcontent">
+                <FontAwesomeIcon icon={elementImmunity ? faCheckSquare : faSquare} className="fa-fw" /> Immunity
+              </Button>}
+              name={<b>{Stat.getStatName(statKey)}</b>}
+              value={Character.getStatValueWithOverride(character, statKey)}
+              placeholder={Stat.getStatNameRaw(statKey)}
+              defaultValue={charBaseStats[statKey]}
+              onValueChange={value => characterDispatch({ type: "bonusStats", statKey, value })}
+              disabled={elementImmunity}
+              percent
+            />
+          </Col>
+        })}
+      </Row>
+      <small>Note: for negative resistances due to resistance shred like Zhongli's shield (e.g. -10%), enter the RAW value (-10). GO will half the value for you in the calculations.</small>
+    </Card.Body>
+  </Card>
+}
 function FormulaCalculationField({ fieldKeys, build, fieldIndex }: { fieldKeys: string[], build: ICalculatedStats, fieldIndex: number, }) {
   const formula = usePromise(Formula.get(fieldKeys), [fieldKeys])
   if (!formula) return null
@@ -156,7 +200,7 @@ function FormulaCalculationField({ fieldKeys, build, fieldIndex }: { fieldKeys: 
   </Card>
 }
 
-const ContextAwareToggle = ({ eventKey, callback }) => {
+export const ContextAwareToggle = ({ eventKey, callback }) => {
   const currentEventKey = useContext(AccordionContext);
   const decoratedOnClick = useAccordionToggle(
     eventKey,
@@ -164,7 +208,7 @@ const ContextAwareToggle = ({ eventKey, callback }) => {
   );
   const expanded = currentEventKey === eventKey;
   return (
-    <Button onClick={decoratedOnClick} variant="info">
+    <Button onClick={decoratedOnClick} variant="info" size="sm">
       <FontAwesomeIcon icon={expanded ? faWindowMinimize : faWindowMaximize} className={`fa-fw ${expanded ? "fa-rotate-180" : ""}`} />
       <span> </span>{expanded ? "Retract" : "Expand"}
     </Button>
@@ -178,15 +222,13 @@ type DamageOptionsAndCalculationProps = {
     artifactSheets: StrictDict<ArtifactSetKey, ArtifactSheet>
   }
   character: ICachedCharacter,
-  className: string
 }
-export default function DamageOptionsAndCalculation({ sheets, sheets: { characterSheet, weaponSheet }, character, character: { hitMode, key: characterKey }, className }: DamageOptionsAndCalculationProps) {
+export default function DamageOptionsAndCalculation({ sheets, sheets: { characterSheet, weaponSheet }, character, character: { hitMode, key: characterKey } }: DamageOptionsAndCalculationProps) {
   const { newBuild, equippedBuild } = useContext(buildContext)
-  const characterDispatch = useCharacterReducer(characterKey)
   //choose which one to display stats for
   const build = newBuild ? newBuild : equippedBuild!
-  const charBaseStats = characterBaseStats(character)
-  return <div className={className}>
+
+  return <div className="mb-2" >
     <Card bg="lightcontent" text={"lightfont" as any} className="mb-2">
       <Card.Header>
         <Row className="mb-n2">
@@ -197,13 +239,10 @@ export default function DamageOptionsAndCalculation({ sheets, sheets: { characte
       </Card.Header>
     </Card>
     <Accordion >
-      <Card bg="lightcontent" text={"lightfont" as any} >
+      <Card bg="lightcontent" text={"lightfont" as any} className="mb-2" >
         <Card.Header>
           <Row>
-            <Col>
-              <span className="d-block">Damage Calculation Options & Formulas</span>
-              <small>Expand below to edit enemy details and view calculation details.</small>
-            </Col>
+            <Col>Formulas {"&"} Calculations</Col>
             <Col xs="auto">
               <ContextAwareToggle callback={undefined} {...{ as: Button }} eventKey="details" />
             </Col>
@@ -211,55 +250,36 @@ export default function DamageOptionsAndCalculation({ sheets, sheets: { characte
         </Card.Header>
         <Accordion.Collapse eventKey="details">
           <Card.Body className="p-2">
-            <Card className="mb-2" bg="darkcontent" text={"lightfont" as any}>
-              <Card.Header>
-                <Row>
-                  <Col>Enemy Editor</Col>
-                  <Col xs="auto">
-                    <Button variant="warning" size="sm">
-                      <a href="https://genshin-impact.fandom.com/wiki/Resistance#Base_Enemy_Resistances" target="_blank" rel="noreferrer">To get the specific resistance values of enemies, please visit the wiki.</a>
-                    </Button >
-                  </Col>
-                </Row>
-              </Card.Header>
-              <Card.Body className="p-2">
-                <Row >
-                  <Col xs={12} xl={6} className="mb-2">
-                    <StatInput
-                      name={<b>Enemy Level</b>}
-                      value={Character.getStatValueWithOverride(character, "enemyLevel")}
-                      placeholder={Stat.getStatNameRaw("enemyLevel")}
-                      defaultValue={charBaseStats.enemyLevel}
-                      onValueChange={value => characterDispatch({ type: "bonusStats", statKey: "enemyLevel", value })}
-                    />
-                  </Col>
-                  {["physical", ...allElements].map(eleKey => {
-                    let statKey = `${eleKey}_enemyRes_`
-                    let immunityStatKey = `${eleKey}_enemyImmunity`
-                    let elementImmunity = Character.getStatValueWithOverride(character, immunityStatKey)
-                    return <Col xs={12} xl={6} key={eleKey} className="mb-2">
-                      <StatInput
-                        prependEle={<Button variant={eleKey} onClick={() => characterDispatch({ type: "bonusStats", statKey: immunityStatKey, value: !elementImmunity })} className="text-darkcontent">
-                          <FontAwesomeIcon icon={elementImmunity ? faCheckSquare : faSquare} className="fa-fw" /> Immunity
-                        </Button>}
-                        name={<b>{Stat.getStatName(statKey)}</b>}
-                        value={Character.getStatValueWithOverride(character, statKey)}
-                        placeholder={Stat.getStatNameRaw(statKey)}
-                        defaultValue={charBaseStats[statKey]}
-                        onValueChange={value => characterDispatch({ type: "bonusStats", statKey, value })}
-                        disabled={elementImmunity}
-                        percent
-                      />
-                    </Col>
-                  })}
-                  <Col xs={12}><small>Note: for negative resistances due to resistance shred like Zhongli's shield (e.g. -10%), enter the RAW value (-10). GO will half the value for you in the calculations.</small></Col>
-                </Row>
-              </Card.Body>
-            </Card>
             <CalculationDisplay sheets={sheets} build={build} />
           </Card.Body>
         </Accordion.Collapse>
       </Card>
     </Accordion>
+    <Accordion >
+      <Card bg="lightcontent" text={"lightfont" as any} className="mb-2">
+        <Card.Header><Row>
+          <Col><h4 className="mb-0">
+            <Badge pill variant="success" className="mr-2">{Stat.getStatName("enemyLevel")} <strong>{Character.getStatValueWithOverride(character, "enemyLevel")}</strong></Badge>
+            {["physical", ...allElements].map(element => <span key={element} className="mr-2"><EnemyResText element={element} character={character} /></span>)}
+          </h4></Col>
+          <Col xs="auto">
+            <ContextAwareToggle callback={undefined} {...{ as: Button }} eventKey="enemyEditor" />
+          </Col>
+        </Row></Card.Header>
+        <Accordion.Collapse eventKey="enemyEditor">
+          <Card.Body className="p-2">
+            <EnemyEditor character={character} />
+          </Card.Body>
+        </Accordion.Collapse>
+      </Card>
+    </Accordion>
   </div>
+}
+
+export function EnemyResText({ character, element }: { character: ICachedCharacter, element: string }) {
+  const immune = !!Character.getStatValueWithOverride(character, `${element}_enemyImmunity`)
+  const resKey = `${element}_enemyRes_`
+  const content = immune ? <span >{uncoloredEleIcons[element]} IMMUNE</span> :
+    <span >{uncoloredEleIcons[element]}RES <strong>{Character.getStatValueWithOverride(character, resKey)}%</strong></span>
+  return <h6 className={`text-${element} d-inline`}>{content}</h6>
 }
