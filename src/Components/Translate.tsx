@@ -1,3 +1,5 @@
+import { Skeleton } from "@mui/material"
+import { Suspense } from "react"
 import { Trans, useTranslation } from "react-i18next"
 const components = {
   anemo: <span className="text-anemo" />,
@@ -13,13 +15,18 @@ export function Translate({ ns, key18, values, children }: { ns: string, key18: 
   const textKey = `${ns}:${key18}`
   const textObj = values ? t(textKey, values, { returnObjects: true }) as any : t(textKey, { returnObjects: true }) as any
   if (typeof textObj === "string") return children ? <Trans i18nKey={textKey} t={t} components={components} values={values} >{children}</Trans> : <Trans i18nKey={textKey} t={t} components={components} values={values} />
-  return <T key18={textKey} obj={textObj} t={t} values={values} />
+  return <Suspense fallback={<Skeleton >{children}</Skeleton>}>
+    <T key18={textKey} obj={textObj} t={t} values={values} />
+  </Suspense>
 }
 /**this is used cause the `components` prop mess with tag interpolation. */
 export function TransWrapper({ ns, key18, values, children }: { ns: string, key18: string, values?: any, children?: any }) {
   const { t } = useTranslation(ns)
   const textKey = `${ns}:${key18}`
-  return <Trans i18nKey={textKey} t={t} values={values} >{children}</Trans>
+  return <Suspense fallback={<Skeleton >{children}</Skeleton>}>
+    <Trans i18nKey={textKey} t={t} values={values} >{children}</Trans>
+  </Suspense>
+
 }
 function Para({ children }: { children?: JSX.Element }) {
   return <p className="mb-0">{children}</p>

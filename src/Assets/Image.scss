@@ -12,21 +12,10 @@ img.thumb-big {
 }
 img.inline-icon {
   display: inline-block;
-  // width: auto;
+  width: auto;
   height: 1.2em;
   vertical-align: -0.25em;
-}
-body .inline-icon {
-  height: 1.5em;
-}
-h1 .inline-icon,
-h2 .inline-icon,
-h3 .inline-icon,
-h4 .inline-icon,
-h5 .inline-icon,
-h6 .inline-icon {
-  height: 1.2em;
-  vertical-align: -0.25em;
+  line-height: 1;
 }
 .overlay-dark {
   filter: brightness(50%);
