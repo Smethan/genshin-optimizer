@@ -1,51 +1,36 @@
 import { faDiscord, faGithub, faPatreon, faPaypal, faReact } from "@fortawesome/free-brands-svg-icons"
 import { faUser } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { ExpandMore as ExpandMoreIcon, Scanner } from "@mui/icons-material"
-import { Box, Button, Card, CardContent, CardHeader, CardMedia, Collapse, Grid, IconButton, IconButtonProps, Link, styled, Typography } from "@mui/material"
+import { ExpandMore, Scanner } from "@mui/icons-material"
+import { Box, Button, CardContent, CardHeader, CardMedia, Collapse, Grid, Link, Typography } from "@mui/material"
 import { useState } from "react"
 import ReactGA from 'react-ga'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link as RouterLink } from 'react-router-dom'
+import CardDark from "../Components/Card/CardDark"
+import CardLight from "../Components/Card/CardLight"
+import ExpandButton from "../Components/ExpandButton"
 import art_editor from './art_editor.png'
 import build_generator from './build_generator.png'
 import character_editor from './character_editor.png'
 import talent_screen from './talent_scr.png'
 import tools from './tools.png'
 
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean;
-}
-
-const ExpandMore = styled((props: ExpandMoreProps) => {
-  const { expand, ...other } = props;
-  return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: (theme as any).transitions.create('transform', {
-    duration: (theme as any).transitions.duration.shortest,
-  }),
-}));
-
 function FeatureCard({ image, title, content, t }) {
   const [expanded, setExpanded] = useState(false);
 
-  const handleExpandClick = () => {
-    setExpanded(!expanded);
-  };
-  return <Card sx={{ bgcolor: "contentLight.main" }} >
+  return <CardLight >
     <CardMedia component="img" image={image} alt="test" sx={{ width: "100%", height: "auto" }} />
     <CardHeader
       action={
-        <ExpandMore
+        <ExpandButton
           expand={expanded}
-          onClick={handleExpandClick}
+          onClick={() => setExpanded(!expanded)}
           aria-expanded={expanded}
           aria-label="show more"
         >
-          <ExpandMoreIcon />
-        </ExpandMore>
+          <ExpandMore />
+        </ExpandButton>
       }
       title={title(t)}
     />
@@ -54,7 +39,7 @@ function FeatureCard({ image, title, content, t }) {
         {content(t)}
       </CardContent>
     </Collapse>
-  </Card>
+  </CardLight>
 }
 
 const features = [{
@@ -158,8 +143,12 @@ function ABtn({ href, icon, children }) {
 export default function HomeDisplay() {
   const { t } = useTranslation("page_home")
   ReactGA.pageview('/home')
-  return <Grid container sx={{ mt: 1 }}>
-    <Card sx={{ mb: 1, bgcolor: "contentDark.main" }}  >
+  return <Box sx={{
+    mt: 1,
+    // select all excluding last
+    "> div": { mb: 1 },
+  }}>
+    <CardDark>
       <CardContent>
         <Typography variant="h5" gutterBottom >
           <Trans i18nKey="intro.title" t={t}>
@@ -184,15 +173,15 @@ export default function HomeDisplay() {
           </Trans>
         </Typography>
       </CardContent>
-    </Card>
-    <Card sx={{ mb: 1, width: "100%", bgcolor: "contentDark.main" }}  >
+    </CardDark>
+    <CardDark sx={{ width: "100%" }}  >
       <CardContent>
         <Typography variant="h5" gutterBottom>
           <Trans i18nKey="quickLinks.title" t={t}>
             Quick Links
           </Trans>
         </Typography>
-        <Card sx={{ mb: 1, bgcolor: "contentLight.main" }}>
+        <CardLight sx={{ mb: 1, }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               <Trans i18nKey="quickLinks.scannerTitle" t={t}>
@@ -210,8 +199,8 @@ export default function HomeDisplay() {
               </Trans>
             </Button>
           </CardContent>
-        </Card>
-        <Card sx={{ bgcolor: "contentLight.main" }}>
+        </CardLight>
+        <CardLight>
           <CardContent>
             <Typography variant="body1" color="text.secondary" gutterBottom >
               <Trans i18nKey="quickLinks.goGithubText" t={t}>
@@ -224,11 +213,11 @@ export default function HomeDisplay() {
               </Trans>
             </Button>
           </CardContent>
-        </Card>
+        </CardLight>
 
       </CardContent>
-    </Card>
-    <Card sx={{ mb: 1, bgcolor: "contentDark.main" }}  >
+    </CardDark>
+    <CardDark>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           <Trans i18nKey="features.title" t={t}>
@@ -241,8 +230,8 @@ export default function HomeDisplay() {
           </Grid>)}
         </Grid>
       </CardContent>
-    </Card>
-    <Card sx={{ mb: 1, bgcolor: "contentDark.main" }} >
+    </CardDark>
+    <CardDark>
       <Grid container>
         <Grid item xs={12} md={6}>
           <CardContent >
@@ -275,8 +264,8 @@ export default function HomeDisplay() {
           </CardContent>
         </Grid>
       </Grid>
-    </Card>
-    <Card sx={{ mb: 1, bgcolor: "contentDark.main" }}>
+    </CardDark>
+    <CardDark>
       <CardContent>
         <Typography variant="h5" gutterBottom >
           <Trans i18nKey="credits.title" t={t}>
@@ -301,6 +290,6 @@ export default function HomeDisplay() {
           </Trans>
         </Typography>
       </CardContent>
-    </Card>
-  </Grid>
+    </CardDark>
+  </Box>
 }

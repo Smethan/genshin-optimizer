@@ -1,9 +1,10 @@
-import { faQuestionCircle, faTimes } from "@fortawesome/free-solid-svg-icons"
+import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Suspense, useState } from "react"
-import { Button, Card, Col, Modal, Row, Spinner } from "react-bootstrap"
+import { Button, Card, Container, Grid, Modal, Typography } from "@mui/material"
+import { useState } from "react"
 import { dbStorage } from "../Database/DBStorage"
 import { getRandomElementFromArray } from "../Util/Util"
+import CardDark from "./Card/CardDark"
 import { TransWrapper } from "./Translate"
 
 export default function InfoComponent({ pageKey = "", text = "", modalTitle = "", children }: { pageKey: string, text: Displayable | Displayable[], modalTitle: Displayable, children: JSX.Element }) {
@@ -16,9 +17,12 @@ export default function InfoComponent({ pageKey = "", text = "", modalTitle = ""
     setshowInfoModal(false)
   }
   return <>
-    <Modal show={showInfoModal} onHide={() => closeModal()} size="xl" variant="success" contentClassName="bg-transparent">
-      <Card bg="darkcontent" text={"lightfont" as any} >
-        <Card.Header>
+    <Modal open={showInfoModal} onClose={() => closeModal()} >
+      <Container sx={{ py: 2 }}>
+        <Card >
+          TODO MUI IMPLEMENTATION HERE
+          {/* TODO: MUI */}
+          {/* <Card.Header>
           <Row>
             <Col>
               <Card.Title>{modalTitle}</Card.Title>
@@ -38,18 +42,23 @@ export default function InfoComponent({ pageKey = "", text = "", modalTitle = ""
           <Button variant="danger" onClick={() => closeModal()}>
             <span>Close</span>
           </Button>
-        </Card.Footer>
-      </Card>
+        </Card.Footer> */}
+        </Card>
+      </Container>
     </Modal >
-    <Card bg="lightcontent" text={"lightfont" as any} className="mb-2">
-      <Card.Body className="pl-2 py-0 pr-0">
-        <Row>
-          <Col><small>{displayText}</small></Col>
-          <Col xs="auto">
-            <Button size="sm" variant="info" className="m-0 py-1" onClick={() => setshowInfoModal(true)}><TransWrapper ns="ui" key18="info" /> <FontAwesomeIcon icon={faQuestionCircle} /></Button>
-          </Col>
-        </Row>
-      </Card.Body>
-    </Card>
+    <CardDark >
+      <Grid container>
+        <Grid item flexGrow={1}>
+          <Typography variant="caption" sx={{ pl: 1 }}>
+            {displayText}
+          </Typography>
+        </Grid>
+        <Grid item xs="auto">
+          <Button size="small" color="info" variant="contained" onClick={() => setshowInfoModal(true)} startIcon={<FontAwesomeIcon icon={faQuestionCircle} />}>
+            <TransWrapper ns="ui" key18="info" />
+          </Button>
+        </Grid>
+      </Grid>
+    </CardDark>
   </>
 }

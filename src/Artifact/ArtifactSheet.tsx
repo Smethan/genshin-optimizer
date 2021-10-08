@@ -23,6 +23,11 @@ export class ArtifactSheet {
   }
 
   get name() { return tr(this.key, "setName") }
+  get defIcon() {
+    const slotKey = this.slots[0]
+    if (!this.slotIcons[slotKey]) return undefined
+    return <img src={this.slotIcons[slotKey]} className="inline-icon" alt="" />
+  }
   get nameWithIcon() {
     const slotKey = this.slots[0]
     return <span><Image src={this.slotIcons[slotKey]} className="inline-icon" /> {tr(this.key, "setName")}</span>

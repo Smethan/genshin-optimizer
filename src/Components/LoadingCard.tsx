@@ -1,6 +1,9 @@
 import { Card, Spinner } from "react-bootstrap";
 import { Trans, useTranslation } from "react-i18next";
-
+/**
+ * @deprecated
+ * @returns 
+ */
 export default function LoadingCard() {
   const { t, ready } = useTranslation("ui", { useSuspense: false });
   return <Card bg="darkcontent" text={"lightfont" as any} className="mt-2">

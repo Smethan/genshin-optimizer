@@ -14,6 +14,11 @@ const SlotIcon: StrictDict<SlotKey, any> = {
 export function artifactSlotIcon(slotKey: SlotKey) {
   return <FontAwesomeIcon icon={SlotIcon[slotKey]} key={slotKey} className="fa-fw" />
 }
+/**
+ * @deprecated should have the slotname & icons separately, for better integration with MUI
+ * @param param0 
+ * @returns 
+ */
 export default function SlotNameWithIcon({ slotKey }: { slotKey: SlotKey }) {
   const { t } = useTranslation("artifact")
   const icon = artifactSlotIcon(slotKey)
