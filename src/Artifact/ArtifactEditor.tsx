@@ -200,15 +200,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
           {[0, 1, 2, 3].map((index) => <SubstatInput key={index} index={index} artifact={cachedArtifact} setSubstat={setSubstat} />)}
         </Grid>
       </Grid>
-      {/* Image OCR */}
-      <CardLight sx={{ mb: 1 }}>
-        <CardContent>
-          {/* TODO: artifactDispatch not overwrite */}
-          <Suspense fallback={<Skeleton width="100%" height="100" />}>
-            <UploadDisplay setState={state => artifactDispatch({ type: "overwrite", artifact: state })} setReset={getUpdloadDisplayReset} artifactInEditor={!!artifact} />
-          </Suspense>
-        </CardContent>
-      </CardLight>
+
       {/* Duplicate/Updated/Edit UI */}
       {old && <Grid container sx={{ justifyContent: "space-around", my: 1 }} >
         <Grid item lg={4} md={6} >
@@ -220,6 +212,17 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
           <div><ArtifactCard artifactObj={old} /></div>
         </Grid>
       </Grid>}
+
+      {/* Image OCR */}
+      <CardLight sx={{ mb: 1 }}>
+        <CardContent>
+          {/* TODO: artifactDispatch not overwrite */}
+          <Suspense fallback={<Skeleton width="100%" height="100" />}>
+            <UploadDisplay setState={state => artifactDispatch({ type: "overwrite", artifact: state })} setReset={getUpdloadDisplayReset} artifactInEditor={!!artifact} />
+          </Suspense>
+        </CardContent>
+      </CardLight>
+
       {/* Error alert */}
       {!isValid && <Alert variant="filled" severity="error" sx={{ mb: 1 }}>{errors.map((e, i) => <div key={i}>{e}</div>)}</Alert>}
 
