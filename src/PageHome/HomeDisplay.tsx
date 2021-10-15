@@ -145,7 +145,6 @@ export default function HomeDisplay() {
   ReactGA.pageview('/home')
   return <Box sx={{
     mt: 1,
-    // select all excluding last
     "> div": { mb: 1 },
   }}>
     <CardDark>
@@ -279,14 +278,14 @@ export default function HomeDisplay() {
         </Typography>
         <Typography component="div" variant="body1" color="text.secondary" >
           <Trans i18nKey="credits.thankList" t={t}>
-            <Box sx={{ my: 0, pt: 1 }} component="ul">
+            <ul>
               <li>Thanks to everyone in the community, and especially people on our <Link href={process.env.REACT_APP_DISCORD_LINK} target="_blank" rel="noreferrer">discord</Link> for providing feedback and helping us improve this tool.</li>
               <li>Thanks to <Link href="https://github.com/Dimbreath" target="_blank" rel="noreferrer">Dimbreath</Link>, for giving us a reliable, consistent source for Genshin data and numbers. All our calculations would be moot without them.</li>
               <li>Some of our Genshin images are directly yoinked from <Link href="https://genshin-impact.fandom.com/" target="_blank" rel="noreferrer">The Genshin Impact Wiki</Link>, so a serendipitous thanks for them.</li>
               <li>Special thanks to members of our community who has gone the extra mile, and has been helping us with localization/translation of GO to other languages, help us test formulas by recording in-game data, and programmers who has helped us with source code contributions.</li>
               <li>Thanks for everyone else, for sharing this tool, and getting more people to use this tool.</li>
               <li>Lastly, and most importantly, thank <strong>YOU</strong>, for using GO right now.</li>
-            </Box>
+            </ul>
           </Trans>
         </Typography>
       </CardContent>

@@ -70,18 +70,13 @@ export function LanguageDropdown() {
 
 function download(JSONstr: string, filename = "data.json") {
   const contentType = "application/json;charset=utf-8"
-  if (window?.navigator?.msSaveOrOpenBlob as any) { // TODO: Function is always defined, do we want to call it instead?
-    const blob = new Blob([decodeURIComponent(encodeURI(JSONstr))], { type: contentType })
-    navigator.msSaveOrOpenBlob(blob, filename)
-  } else {
-    const a = document.createElement('a');
-    a.download = filename
-    a.href = `data:${contentType},${encodeURIComponent(JSONstr)}`
-    a.target = "_blank"
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-  }
+  const a = document.createElement('a');
+  a.download = filename
+  a.href = `data:${contentType},${encodeURIComponent(JSONstr)}`
+  a.target = "_blank"
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
 }
 
 function deleteDatabase(t, database: ArtCharDatabase) {

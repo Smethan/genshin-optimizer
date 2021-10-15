@@ -4,6 +4,7 @@ import { useCallback, useEffect, useReducer, useState } from 'react';
 import { Button, Card, Col, Form, Modal, ProgressBar, Row } from 'react-bootstrap';
 import ReactGA from 'react-ga';
 import { createScheduler, createWorker, RecognizeResult, Scheduler } from 'tesseract.js';
+import CloseButton from '../Components/CloseButton';
 import usePromise from '../ReactHooks/usePromise';
 import Stat from '../Stat';
 import { allMainStatKeys, allSubstats, IArtifact, ICachedArtifact, ISubstat, MainStatKey, SubstatKey } from '../Types/artifact';
@@ -187,9 +188,7 @@ function ExplainationModal({ modalShow, hide }: { modalShow: boolean, hide: () =
         </Row>
       </Card.Body>
       <Card.Footer>
-        <Button variant="danger" onClick={hide}>
-          <span>Close</span>
-        </Button>
+        <CloseButton large onClick={hide} />
       </Card.Footer>
     </Card>
   </Modal>

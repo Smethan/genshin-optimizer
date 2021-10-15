@@ -12,7 +12,7 @@ const SqBadge = styled("span", {
   textAlign: "center",
   whiteSpace: "nowrap",
   verticalAlign: "baseline",
-  borderRadius: ".25rem",
+  borderRadius: ".25em",
   backgroundColor: theme.palette[color]?.main,
   color: theme.palette[color]?.contrastText
 }))

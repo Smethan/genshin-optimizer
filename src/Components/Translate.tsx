@@ -1,13 +1,14 @@
-import { Skeleton } from "@mui/material"
+import { Skeleton, Typography } from "@mui/material"
 import { Suspense } from "react"
 import { Trans, useTranslation } from "react-i18next"
+import ColorText from "./ColoredText"
 const components = {
-  anemo: <span className="text-anemo" />,
-  geo: <span className="text-geo" />,
-  cryo: <span className="text-cryo" />,
-  hydro: <span className="text-hydro" />,
-  pyro: <span className="text-pyro" />,
-  electro: <span className="text-electro" />,
+  anemo: <ColorText color="anemo" />,
+  geo: <ColorText color="geo" />,
+  cryo: <ColorText color="cryo" />,
+  hydro: <ColorText color="hydro" />,
+  pyro: <ColorText color="pyro" />,
+  electro: <ColorText color="electro" />,
 }
 
 export function Translate({ ns, key18, values, children }: { ns: string, key18: string, values?: any, children?: any }) {
@@ -29,17 +30,17 @@ export function TransWrapper({ ns, key18, values, children }: { ns: string, key1
 
 }
 function Para({ children }: { children?: JSX.Element }) {
-  return <p className="mb-0">{children}</p>
+  return <Typography gutterBottom>{children}</Typography>
 }
 
 function T({ key18, obj, li, t, values }: { key18: string, obj: any, li?: boolean, t, values?: any }) {
   if (typeof obj === "string") return <Trans i18nKey={key18} components={components} parent={Para} t={t} values={values} />
   if (Array.isArray(obj))
-    return <ul className="mb-2">
+    return <Typography component="div"><ul >
       <T key18={key18} obj={{ ...obj }} li t={t} values={values} />
-    </ul>
+    </ul></Typography>
   return Object.entries(obj).map(([key, val]) => {
-    if (val === "<br/>") return <div key={key as any} className="mb-2" />
+    if (val === "<br/>") return null
 
     if (typeof val === "object") return <T key={key as any} key18={`${key18}.${key as any}`} obj={val} t={t} values={values} />
     if (typeof val === "string") {

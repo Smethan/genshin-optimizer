@@ -6,13 +6,15 @@ import React, { lazy, Suspense, useCallback, useContext, useEffect, useMemo, use
 import { Trans, useTranslation } from 'react-i18next';
 import ArtifactRarityDropdown from '../Components/Artifact/ArtifactRarityDropdown';
 import ArtifactSetDropdown from '../Components/Artifact/ArtifactSetDropdown';
+import ArtifactSlotDropdown from '../Components/Artifact/ArtifactSlotDropdown';
 import BootstrapTooltip from '../Components/BootstrapTooltip';
 import CardDark from '../Components/Card/CardDark';
 import CardLight from '../Components/Card/CardLight';
-import CustomNumberInput from '../Components/CustomNumberInput';
+import CustomNumberInput, { CustomNumberInputButtonGroupWrapper } from '../Components/CustomNumberInput';
 import CustomNumberTextField from '../Components/CustomNumberTextField';
 import DropdownButton from '../Components/DropdownMenu/DropdownButton';
 import ExpandButton from '../Components/ExpandButton';
+import ImgIcon from '../Components/ImgIcon';
 import SqBadge from '../Components/SqBadge';
 import { DatabaseContext } from '../Database/Database';
 import { parseArtifact, validateArtifact } from '../Database/validation';
@@ -28,8 +30,8 @@ import Artifact from './Artifact';
 import ArtifactCard from './ArtifactCard';
 import { ArtifactSheet } from './ArtifactSheet';
 import artifactSubstatRollCorrection from './artifact_sub_rolls_correction_gen.json';
-import SlotNameWithIcon from './Component/SlotNameWIthIcon';
 import PercentBadge from './PercentBadge';
+import TextButton from '../Components/TextButton';
 
 const UploadDisplay = lazy(() => import('./UploadDisplay'))
 
@@ -141,7 +143,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
           {/* set & rarity */}
           <ButtonGroup sx={{ display: "flex", mb: 1 }}>
             {/* Artifact Set */}
-            <ArtifactSetDropdown selectedSetKey={artifact?.setKey} onChange={setKey => update({ setKey })} sx={{ flexGrow: 1 }} />
+            <ArtifactSetDropdown selectedSetKey={artifact?.setKey} onChange={setKey => update({ setKey: setKey as ArtifactSetKey })} sx={{ flexGrow: 1 }} />
             {/* rarity dropdown */}
             <ArtifactRarityDropdown rarity={artifact ? rarity : undefined} onChange={r => update({ rarity: r })} filter={r => !!sheet?.rarity?.includes?.(r)} disabled={!sheet} />
           </ButtonGroup>
@@ -160,20 +162,19 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
 
           {/* slot */}
           <Box component="div" sx={{ display: "flex" }}>
-            <DropdownButton title={<SlotNameWithIcon slotKey={slotKey} /> as any} disabled={!sheet} color={artifact ? "success" : "primary"} >
-              {sheet?.slots?.map((sKey: SlotKey) =>
-                <MenuItem key={sKey as any} selected={slotKey === sKey} disabled={slotKey === sKey} onClick={() => update({ slotKey: sKey })} ><SlotNameWithIcon slotKey={sKey} /></MenuItem>)}
-            </DropdownButton>
+            <ArtifactSlotDropdown disabled={!sheet} slotKey={slotKey} onChange={slotKey => update({ slotKey })} />
             <CardLight sx={{ p: 1, ml: 1, flexGrow: 1 }}>
-              <Typography color="text.secondary">
-                {sheet?.getSlotName(artifact!.slotKey) ? <span><img src={sheet.slotIcons[artifact!.slotKey]} className="inline-icon" alt="" /> {sheet?.getSlotName(artifact!.slotKey)}</span> : t`editor.unknownPieceName`}
-              </Typography>
+              <Suspense fallback={<Skeleton width="60%" />}>
+                <Typography color="text.secondary">
+                  {sheet?.getSlotName(artifact!.slotKey) ? <span><ImgIcon src={sheet.slotIcons[artifact!.slotKey]} /> {sheet?.getSlotName(artifact!.slotKey)}</span> : t`editor.unknownPieceName`}
+                </Typography>
+              </Suspense>
             </CardLight>
           </Box>
 
           {/* main stat */}
           <Box component="div" sx={{ display: "flex" }}>
-            <DropdownButton title={<b>{artifact ? Stat.getStatNameWithPercent(artifact.mainStatKey) : t`mainStat`}</b> as any} disabled={!sheet} color={artifact ? "success" : "primary"} >
+            <DropdownButton title={<b>{artifact ? Stat.getStatNameWithPercent(artifact.mainStatKey) : t`mainStat`}</b>} disabled={!sheet} color={artifact ? "success" : "primary"} >
               {Artifact.slotMainStats(slotKey).map(mainStatK =>
                 <MenuItem key={mainStatK} selected={artifact?.mainStatKey === mainStatK} disabled={artifact?.mainStatKey === mainStatK} onClick={() => update({ mainStatKey: mainStatK })} >{Stat.getStatNameWithPercent(mainStatK)}</MenuItem>)}
             </DropdownButton>
@@ -210,17 +211,17 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
       </CardLight>
       {/* Duplicate/Updated/Edit UI */}
       {old && <Grid container sx={{ justifyContent: "space-around", my: 1 }} >
-        <Grid item lg={4} md={6} className="mb-2">
+        <Grid item lg={4} md={6} >
           <Typography sx={{ textAlign: "center" }} variant="h6" color="text.secondary" >{t`editor.preview`}</Typography>
           <div><ArtifactCard artifactObj={cachedArtifact} /></div>
         </Grid>
-        <Grid item lg={4} md={6} className="mb-2">
+        <Grid item lg={4} md={6} >
           <Typography sx={{ textAlign: "center" }} variant="h6" color="text.secondary" >{oldType !== "edit" ? (oldType === "duplicate" ? t`editor.dupArt` : t`editor.upArt`) : t`editor.beforeEdit`}</Typography>
           <div><ArtifactCard artifactObj={old} /></div>
         </Grid>
       </Grid>}
       {/* Error alert */}
-      {!isValid && <Alert severity="error" sx={{ mb: 1 }}>{errors.map((e, i) => <div key={i}>{e}</div>)}</Alert>}
+      {!isValid && <Alert variant="filled" severity="error" sx={{ mb: 1 }}>{errors.map((e, i) => <div key={i}>{e}</div>)}</Alert>}
 
       {/* Buttons */}
       <Grid container spacing={2}>
@@ -292,28 +293,31 @@ function SubstatInput({ index, artifact, setSubstat }: { index: number, artifact
 
   return <CardLight>
     <Box sx={{ display: "flex" }}>
-      <DropdownButton title={key ? Stat.getStatNameWithPercent(key) : t('editor.substat.substatFormat', { value: index + 1 })} disabled={!artifact} color={key ? "success" : "primary"} sx={{ whiteSpace: "nowrap" }}>
-        {key && <MenuItem onClick={() => setSubstat(index, { key: "", value: 0 })}>{t`editor.substat.noSubstat`}</MenuItem>}
-        {allSubstats.filter(key => mainStatKey !== key)
-          .map(k => <MenuItem key={k} selected={key === k} disabled={key === k} onClick={() => setSubstat(index, { key: k, value: 0 })} >
-            {Stat.getStatNameWithPercent(k)}
-          </MenuItem>)}
-      </DropdownButton>
-      <CustomNumberInput
-        float={unit === "%"}
-        placeholder={t`editor.substat.selectSub`}
-        value={key ? value : undefined}
-        onChange={value => setSubstat(index, { key, value: value ?? 0 })}
-        disabled={!key}
-        error={!!error}
-        sx={{
-          px: 1,
-          flexShrink: 1,
-          flexBasis: 100,
-          flexGrow: 1
-        }}
-      />
-      <ButtonGroup size="small">
+      <ButtonGroup size="small" sx={{ width: "100%", display: "flex" }}>
+        <DropdownButton title={key ? Stat.getStatNameWithPercent(key) : t('editor.substat.substatFormat', { value: index + 1 })} disabled={!artifact} color={key ? "success" : "primary"} sx={{ whiteSpace: "nowrap" }}>
+          {key && <MenuItem onClick={() => setSubstat(index, { key: "", value: 0 })}>{t`editor.substat.noSubstat`}</MenuItem>}
+          {allSubstats.filter(key => mainStatKey !== key)
+            .map(k => <MenuItem key={k} selected={key === k} disabled={key === k} onClick={() => setSubstat(index, { key: k, value: 0 })} >
+              {Stat.getStatNameWithPercent(k)}
+            </MenuItem>)}
+        </DropdownButton>
+        <CustomNumberInputButtonGroupWrapper sx={{ flexBasis: 30, flexGrow: 1 }} >
+          <CustomNumberInput
+            float={unit === "%"}
+            placeholder={t`editor.substat.selectSub`}
+            value={key ? value : undefined}
+            onChange={value => setSubstat(index, { key, value: value ?? 0 })}
+            disabled={!key}
+            error={!!error}
+            sx={{
+              px: 1,
+            }}
+            inputProps={{
+              sx: { textAlign: "right" }
+            }}
+          />
+        </CustomNumberInputButtonGroupWrapper>
+        {!!rollData.length && <TextButton>{t`editor.substat.nextRolls`}</TextButton>}
         {rollData.map((v, i) => {
           let newValue = valueString(accurateValue + v, unit)
           newValue = artifactSubstatRollCorrection[rarity]?.[key]?.[newValue] ?? newValue

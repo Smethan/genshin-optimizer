@@ -164,7 +164,7 @@ export function parseCharacter(obj: any): ICharacter | undefined {
   if (!allHitModes.includes(hitMode)) hitMode = "avgHit"
   if (characterKey !== "Traveler") elementKey = undefined
   else if (!allElements.includes(elementKey)) elementKey = "anemo"
-  if (!allReactionModes.includes(reactionMode)) reactionMode = null
+  if (!allReactionModes.includes(reactionMode)) reactionMode = ""
   if (!allElements.includes(infusionAura)) infusionAura = ""
   if (typeof constellation !== "number" && constellation < 0 && constellation > 6) constellation = 0
   if (typeof ascension !== "number" ||

@@ -21,6 +21,7 @@
     "level": "Level"
   },
   "unselect": "Unselect",
+  "inventory": "Inventory",
   "ascending": "Ascending",
   "descending": "Descending",
   "sortByFormat": "Sort By: {{value}}",
@@ -30,5 +31,13 @@
   "underConstruction": "Under Construction",
   "error": "Error",
   "reset": "Reset",
-  "info": "INFO"
+  "info": "INFO",
+  "close": "Close",
+  "sortMap": {
+    "name": "Name",
+    "level": "Level",
+    "rarity": "Rarity",
+    "efficiency": "Current Substat Eff.",
+    "mefficiency": "Maximum Substat Eff."
+  }
 }

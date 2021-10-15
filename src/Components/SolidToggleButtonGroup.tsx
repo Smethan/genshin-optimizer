@@ -1,21 +1,34 @@
-import { styled, ToggleButtonGroup } from "@mui/material";
+import { ButtonProps, styled, ToggleButtonGroup, ToggleButtonGroupProps } from "@mui/material";
 
-const SolidToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+export type SolidToggleButtonGroupProps = SolidToggleButtonGroupPropsPartial & ToggleButtonGroupProps
+type SolidToggleButtonGroupPropsPartial = {
+  baseColor?: ButtonProps["color"];
+  selectedColor?: ButtonProps["color"];
+}
+
+const SolidToggleButtonGroup = styled(ToggleButtonGroup, {
+  shouldForwardProp: (prop) => prop !== "baseColor"
+})<SolidToggleButtonGroupPropsPartial>(({ theme, baseColor = "primary", selectedColor = "success" }) => ({
   '& .MuiToggleButtonGroup-grouped': {
     '&': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette[baseColor].main,
+      color: theme.palette[baseColor].contrastText,
     },
     '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
+      backgroundColor: theme.palette[baseColor].dark,
     },
     '&.Mui-selected': {
-      backgroundColor: theme.palette.success.main,
-      color: theme.palette.success.contrastText,
-
+      backgroundColor: theme.palette[selectedColor].main,
+      color: theme.palette[selectedColor].contrastText,
     },
     '&.Mui-selected:hover': {
-      backgroundColor: theme.palette.success.dark,
+      backgroundColor: theme.palette[selectedColor].dark,
+    },
+    '&.Mui-disabled': {
+      backgroundColor: theme.palette[baseColor].dark,
+    },
+    '&.Mui-selected.Mui-disabled': {
+      backgroundColor: theme.palette[selectedColor].dark,
     },
   },
 }));

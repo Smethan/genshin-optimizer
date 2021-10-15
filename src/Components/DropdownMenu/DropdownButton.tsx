@@ -2,8 +2,8 @@ import { KeyboardArrowDown } from "@mui/icons-material";
 import { Button, ButtonProps, Menu, Skeleton } from "@mui/material";
 import { Suspense, useCallback, useState } from "react";
 
-type DropdownButtonProps = ButtonProps & {
-  title: any,
+export type DropdownButtonProps = Omit<ButtonProps, "title"> & {
+  title: React.ReactNode,
   id?: string,
   children: React.ReactNode
 }

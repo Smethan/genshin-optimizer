@@ -19,7 +19,7 @@ export default function ArtifactRarityDropdown({ rarity, onChange, filter, ...pr
   >
     {([5, 4, 3] as ArtifactRarity[]).map(rarity =>
       <MenuItem key={rarity} disabled={!filter(rarity)} onClick={() => onChange(rarity)}>
-        {<Stars stars={rarity} />}
+        <Stars stars={rarity} />
       </MenuItem>)}
   </DropdownButton>
 }

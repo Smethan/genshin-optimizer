@@ -25,7 +25,8 @@
       "noStat": "No Value",
       "eff": "Efficiency: <1></1>",
       "noSubstat": "No Substat",
-      "substatFormat": "Substat {{value}}"
+      "substatFormat": "Substat {{value}}",
+      "nextRolls": "Next rolls:"
     },
     "preview": "Artifact Preview",
     "dupArt": "Duplicate artifact detected.",

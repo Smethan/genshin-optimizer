@@ -29,7 +29,6 @@ function filterInit(initial = initialFilter()) {
   return { ...initial, ...(dbStorage.get("ArtifactDisplay.state") ?? {}) }
 }
 export default function ArtifactDisplay(props) {
-  const t1 = performance.now()
   const { t } = useTranslation(["artifact", "ui"]);
   const database = useContext(DatabaseContext)
   const [filters, filterDispatch] = useReducer(filterReducer, initialFilter(), filterInit)
@@ -40,13 +39,11 @@ export default function ArtifactDisplay(props) {
   const invScrollRef = useRef<HTMLDivElement>(null)
   const [dbDirty, forceUpdate] = useForceUpdate()
   const effFilterSet = useMemo(() => new Set(effFilter), [effFilter]) as Set<SubstatKey>
-  const deleteArtifact = useCallback(
-    (id: string) => database.removeArt(id), [database])
-  const editArtifact = useCallback(
-    id => {
-      scrollRef?.current?.scrollIntoView({ behavior: "smooth" })
-      setartToEditId(id);
-    }, [])
+  const deleteArtifact = useCallback((id: string) => database.removeArt(id), [database])
+  const editArtifact = useCallback(id => {
+    scrollRef?.current?.scrollIntoView({ behavior: "smooth" })
+    setartToEditId(id);
+  }, [])
   const cancelEditArtifact = useCallback(() => setartToEditId(null), [])
 
   useEffect(() => {
@@ -118,11 +115,9 @@ export default function ArtifactDisplay(props) {
     },
     [setpageIdex, invScrollRef],
   )
-  console.log("Time to prerender: ", performance.now() - t1);
 
   return <Box sx={{
     mt: 1,
-    // select all excluding last
     "> div": { mb: 1 },
   }}>
     <InfoComponent
@@ -141,27 +136,25 @@ export default function ArtifactDisplay(props) {
     <ArtifactFilter artifacts={artifacts} filters={filters} filterDispatch={filterDispatch} />
     <CardDark ref={invScrollRef}>
       <CardContent>
-        <Grid container>
+        <Grid container sx={{ mb: 1 }}>
           <Grid item flexGrow={1}><span><Trans t={t} i18nKey="efficiencyFilter.title">Substats to use in efficiency calculation</Trans></span></Grid>
           <Grid item>
             <Button size="small" color="error" onClick={() => filterDispatch({ effFilter: [...allSubstats] })} startIcon={<Replay />}><Trans t={t} i18nKey="ui:reset" /></Button>
           </Grid>
         </Grid>
-      </CardContent>
-      <CardContent>
         <EfficiencyFilter selectedKeys={effFilter} onChange={n => filterDispatch({ effFilter: n })} />
       </CardContent>
     </CardDark>
     <PaginationCard count={numPages} page={currentPageIndex + 1} onChange={setPage} numShowing={artifactsToShow.length} total={totalShowing} t={t} />
-    <Grid container spacing={2} >
+    <Grid container spacing={1} >
       <Suspense fallback={<Grid item xs={12}><Skeleton variant="rectangular" sx={{ width: "100%", height: "100%", minHeight: 5000 }} /></Grid>}>
         {artifactsToShow.map((art, i) =>
-          <Grid item key={i} xs={6} md={4} lg={4} xl={3} className="mb-2">
+          <Grid item key={i} xs={6} md={4} lg={4} xl={3} >
             <ArtifactCard
               artifactId={art.id}
               effFilter={effFilterSet}
-              onDelete={() => deleteArtifact(art.id)}
-              onEdit={() => editArtifact(art.id)}
+              onDelete={deleteArtifact}
+              onEdit={editArtifact}
             />
           </Grid>
         )}
@@ -197,14 +190,14 @@ function EfficiencyFilter({ selectedKeys, onChange }) {
   const selKeys2 = selectedKeys.filter(k => keys2.includes(k))
   return <Grid container spacing={1}>
     <Grid item xs={12} md={6}>
-      <SolidToggleButtonGroup fullWidth value={selKeys1} onChange={(e, arr) => onChange([...selKeys2, ...arr])}>
+      <SolidToggleButtonGroup fullWidth value={selKeys1} onChange={(e, arr) => onChange([...selKeys2, ...arr])} sx={{ height: "100%" }}>
         {keys1.map(key => <ToggleButton size="small" key={key} value={key}>
           {Stat.getStatNameWithPercent(key)}
         </ToggleButton>)}
       </SolidToggleButtonGroup>
     </Grid>
     <Grid item xs={12} md={6}>
-      <SolidToggleButtonGroup fullWidth value={selKeys2} onChange={(e, arr) => onChange([...selKeys1, ...arr])}>
+      <SolidToggleButtonGroup fullWidth value={selKeys2} onChange={(e, arr) => onChange([...selKeys1, ...arr])} sx={{ height: "100%" }}>
         {keys2.map(key => <ToggleButton size="small" key={key} value={key}>
           {Stat.getStatNameWithPercent(key)}
         </ToggleButton>)}

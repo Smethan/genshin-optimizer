@@ -1,5 +1,5 @@
 import { KeyboardArrowUp } from '@mui/icons-material';
-import { Box, Fab, Grid, Skeleton, useScrollTrigger, Zoom } from '@mui/material';
+import { Box, Container, Fab, Grid, Skeleton, useScrollTrigger, Zoom } from '@mui/material';
 import React, { lazy, Suspense } from 'react';
 import { HashRouter, Route, Switch } from "react-router-dom";
 import './App.scss';
@@ -60,28 +60,25 @@ function App() {
       <Grid item >
         <Header anchor="back-to-top-anchor" />
       </Grid>
-      <Grid item container flexGrow={1}>
-        <Grid item lg={1} xl={2}></Grid>
-        <Grid item xs={12} lg={10} xl={8} sx={{ mx: { xs: 1, lg: 0 } }}>
-          <Suspense fallback={<Skeleton variant="rectangular" sx={{ width: "100%", height: "100%" }} />}>
-            <Switch>
-              <Route path="/artifact" component={ArtifactDisplay} />
-              <Route path="/weapon" component={WeaponDisplay} />
-              <Route path="/character" component={CharacterDisplay} />
-              <Route path="/build" component={BuildDisplay} />
-              <Route path="/tools" component={Planner} />
-              {process.env.NODE_ENV === "development" && <Route path="/test" component={TestDisplay} />}
-              <Route path="/database" component={SettingsDisplay} />
-              <Route path="/doc" component={DocumentationDisplay} />
-              <Route path="/flex" component={FlexDisplay} />
-              <Route path="/scanner" component={ScannerDisplay} />
-              <Route path="/" component={Home} />
-            </Switch>
-          </Suspense>
-        </Grid>
-        <Grid item lg={1} xl={2}></Grid>
-
-      </Grid>
+      <Container maxWidth="xl">
+        <Suspense fallback={<Skeleton variant="rectangular" sx={{ width: "100%", height: "100%" }} />}>
+          <Switch>
+            <Route path="/artifact" component={ArtifactDisplay} />
+            <Route path="/weapon" component={WeaponDisplay} />
+            <Route path="/character" component={CharacterDisplay} />
+            <Route path="/build" component={BuildDisplay} />
+            <Route path="/tools" component={Planner} />
+            {process.env.NODE_ENV === "development" && <Route path="/test" component={TestDisplay} />}
+            <Route path="/database" component={SettingsDisplay} />
+            <Route path="/doc" component={DocumentationDisplay} />
+            <Route path="/flex" component={FlexDisplay} />
+            <Route path="/scanner" component={ScannerDisplay} />
+            <Route path="/" component={Home} />
+          </Switch>
+        </Suspense>
+      </Container>
+      {/* make sure footer is always at bottom */}
+      <Grid item flexGrow={1} />
       <Grid item >
         <Footer />
       </Grid>
