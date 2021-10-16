@@ -21,7 +21,7 @@ function DisplayStatDiff({ label = "", val, oldVal, fixed = 0, unit = "", hasBon
   if (oldVal || diff === 0) oldText = oldVal?.toFixed(fixed)
   else if (oldVal === undefined) oldText = val?.toFixed(fixed)//if oldval isnt defined, just display val.
   if (oldText) oldText = <span>{oldText}{unit}</span>
-  if (diff !== 0) diffText = <ColorText color={diff > 0 ? "success" : "danger"}>{diff > 0 ? "+" : ""}{diff?.toFixed(fixed)}{unit}</ColorText>
+  if (diff !== 0) diffText = <ColorText color={diff > 0 ? "success" : "error"}>{diff > 0 ? "+" : ""}{diff?.toFixed(fixed)}{unit}</ColorText>
   const valueText = <>{oldText}{diffText}</>
   return <Box display="flex" justifyContent="space-between" >
     <Typography>{label}</Typography>

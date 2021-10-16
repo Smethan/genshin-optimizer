@@ -1,5 +1,5 @@
 import { CharacterExpCurveData } from "pipeline";
-import ImgIcon from "../Components/ImgIcon";
+import ImgIcon from "../Components/Image/ImgIcon";
 import Stat from '../Stat';
 import { ICharacterSheet, TalentSheet } from "../Types/character";
 import { allCharacterKeys, CharacterKey, ElementKey } from "../Types/consts";

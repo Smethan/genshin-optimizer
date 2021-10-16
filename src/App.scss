@@ -12,22 +12,6 @@ $star3Color: #4287f5;
 $star2Color: #008000;
 $star1Color: #808080;
 
-// $card-bg: $contentbg;
-$body-bg: $darkbg;
-// $body-color: $lightfontcolor;
-
-// .card-header {
-//     background-color: $lightbg !important;
-// }
-html,
-body {
-  height: 100%;
-}
-#root {
-  min-height: 100%;
-  height: 100%;
-}
-
 .text-halfsize {
   font-size: 50%;
 }
@@ -45,17 +29,6 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-// input.invisible-input {
-//   outline-color: initial;
-//   background-image: initial;
-//   background-color: transparent;
-//   cursor: pointer;
-//   outline: 0;
-//   margin: 0;
-//   -ms-appearance: none;
-//   border: none;
-// }
-
 .grad-1star {
   background-image: linear-gradient(to bottom right, #4f5864, #838f99);
 }
@@ -70,71 +43,4 @@ input[type="number"] {
 }
 .grad-5star {
   background-image: linear-gradient(to bottom right, #695453, #e6ac54);
-}
-
-//class for changing the cursor to pointer
-.cursor-pointer {
-  cursor: pointer;
-}
-
-//default gutter size of 30px is wayyyyyyy too big
-$grid-gutter-width: 10px;
-
-$theme-colors: (
-  "lightcontent": $lightbg,
-  "darkcontent": $contentbg,
-  "darkercontent": $darkbg,
-  "lightfont": $lightfontcolor,
-  //gold
-  "5star": $star5Color,
-  //purple
-  "4star": $star4Color,
-  //light blue
-  "3star": $star3Color,
-  //green
-  "2star": $star2Color,
-  //grey
-  "1star": $star1Color,
-  "1roll": #a3a7a9,
-  //163, 167, 169
-  "2roll": #6fa376,
-  //111, 163, 118
-  "3roll": #8eea83,
-  //142, 234, 131
-  "4roll": #31e09d,
-  //49, 224, 157
-  "5roll": #27bbe4,
-  //39, 187, 228
-  "6roll": #de79f0,
-  //222, 121, 240
-  "geo": #f8ba4e,
-  "dendro": #b1ea29,
-  "pyro": #bf2818,
-  "hydro": #2f63d4,
-  "cryo": #77a2e6,
-  "electro": #b25dcd,
-  "anemo": #61dbbb,
-  "physical": #969696,
-  //ELE REACTIONS
-  "vaporize": #ffcb65,
-  "melt": #ffcb65,
-  "overloaded": #ff7e9a,
-  "superconduct": #b7b1ff,
-  "electrocharged": #e299fd,
-  "shattered": #98fffd,
-  "swirl": #66ffcb,
-  "burning": #bf2818,
-  "crystalize": #f8ba4e,
-  "orange": #ff6600,
-);
-
-textarea.code {
-  overflow-y: auto;
-  overflow-x: auto;
-  font-family: monospace;
-  border: none;
-  // padding: 1em;
-  white-space:pre;
-  background-color: transparent;
-  resize: none;
 }

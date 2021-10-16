@@ -2,7 +2,7 @@ import { ToggleButton } from "@mui/material";
 import { useCallback } from "react";
 import Assets from "../../Assets/Assets";
 import { allWeaponTypeKeys, WeaponTypeKey } from "../../Types/consts";
-import ImgIcon from "../ImgIcon";
+import ImgIcon from "../Image/ImgIcon";
 import SolidToggleButtonGroup, { SolidToggleButtonGroupProps } from "../SolidToggleButtonGroup";
 type WeaponToggleProps = Omit<SolidToggleButtonGroupProps, "onChange" | "value"> & {
   onChange: (value: WeaponTypeKey | "") => void

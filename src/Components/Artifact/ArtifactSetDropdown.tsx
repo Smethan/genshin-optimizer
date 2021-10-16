@@ -6,7 +6,7 @@ import { ArtifactSheet } from "../../Artifact/ArtifactSheet";
 import usePromise from "../../ReactHooks/usePromise";
 import { ArtifactRarity, ArtifactSetKey, Rarity } from "../../Types/consts";
 import DropdownButton from "../DropdownMenu/DropdownButton";
-import ImgIcon from "../ImgIcon";
+import ImgIcon from "../Image/ImgIcon";
 import { Stars } from "../StarDisplay";
 
 type props = Omit<ButtonProps, "onChange"> & {

@@ -3,7 +3,6 @@ import { Box, Container, Fab, Grid, Skeleton, useScrollTrigger, Zoom } from '@mu
 import React, { lazy, Suspense } from 'react';
 import { HashRouter, Route, Switch } from "react-router-dom";
 import './App.scss';
-import './Assets/Image.scss';
 import './Database/Database';
 import Footer from './Footer';
 import Header from './Header';
@@ -13,7 +12,7 @@ const Home = lazy(() => import('./PageHome/HomeDisplay'))
 const ArtifactDisplay = lazy(() => import('./Artifact/ArtifactDisplay'))
 const CharacterDisplay = lazy(() => import('./Character/CharacterDisplay'))
 const BuildDisplay = lazy(() => import('./Build/BuildDisplay'))
-const Planner = lazy(() => import('./Planner/PlannerDisplay'))
+const ToolsDisplay = lazy(() => import('./Tools/ToolsDisplay'))
 const TestDisplay = lazy(() => import('./TestPage/TestDisplay'))
 const FlexDisplay = lazy(() => import('./FlexPage/FlexDisplay'))
 const SettingsDisplay = lazy(() => import('./Settings/SettingsDisplay'))
@@ -67,7 +66,7 @@ function App() {
             <Route path="/weapon" component={WeaponDisplay} />
             <Route path="/character" component={CharacterDisplay} />
             <Route path="/build" component={BuildDisplay} />
-            <Route path="/tools" component={Planner} />
+            <Route path="/tools" component={ToolsDisplay} />
             {process.env.NODE_ENV === "development" && <Route path="/test" component={TestDisplay} />}
             <Route path="/database" component={SettingsDisplay} />
             <Route path="/doc" component={DocumentationDisplay} />

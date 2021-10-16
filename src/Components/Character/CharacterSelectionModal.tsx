@@ -14,7 +14,7 @@ import WeaponSheet from "../../Weapon/WeaponSheet";
 import CardDark from "../Card/CardDark";
 import CardLight from "../Card/CardLight";
 import CloseButton from "../CloseButton";
-import ImgIcon from "../ImgIcon";
+import ImgIcon from "../Image/ImgIcon";
 import ModalWrapper from "../ModalWrapper";
 import SortByButton from "../SortByButton";
 import SqBadge from "../SqBadge";

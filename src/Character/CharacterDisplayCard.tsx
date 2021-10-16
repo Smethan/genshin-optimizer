@@ -11,7 +11,7 @@ import DropdownButton from '../Components/DropdownMenu/DropdownButton';
 import { EnemyExpandCard } from '../Components/EnemyEditor';
 import FormulaCalcCard from '../Components/FormulaCalcCard';
 import { DamageOptionsCard } from '../Components/HitModeEditor';
-import ImgIcon from '../Components/ImgIcon';
+import ImgIcon from '../Components/Image/ImgIcon';
 import ElementalData from '../Data/ElementalData';
 import { ambiguousLevel, ascensionMaxLevel, milestoneLevels } from '../Data/LevelData';
 import { DatabaseContext } from '../Database/Database';

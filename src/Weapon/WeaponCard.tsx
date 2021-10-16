@@ -9,7 +9,7 @@ import CardLight from "../Components/Card/CardLight"
 import CharacterDropdownButton from '../Components/Character/CharacterDropdownButton'
 import LocationName from "../Components/Character/LocationName"
 import ConditionalWrapper from "../Components/ConditionalWrapper"
-import ImgIcon from "../Components/ImgIcon"
+import ImgIcon from "../Components/Image/ImgIcon"
 import { Stars } from "../Components/StarDisplay"
 import StatIcon from "../Components/StatIcon"
 import { ascensionMaxLevel } from "../Data/LevelData"

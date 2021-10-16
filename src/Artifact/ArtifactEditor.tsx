@@ -14,7 +14,7 @@ import CustomNumberInput, { CustomNumberInputButtonGroupWrapper } from '../Compo
 import CustomNumberTextField from '../Components/CustomNumberTextField';
 import DropdownButton from '../Components/DropdownMenu/DropdownButton';
 import ExpandButton from '../Components/ExpandButton';
-import ImgIcon from '../Components/ImgIcon';
+import ImgIcon from '../Components/Image/ImgIcon';
 import SqBadge from '../Components/SqBadge';
 import { DatabaseContext } from '../Database/Database';
 import { parseArtifact, validateArtifact } from '../Database/validation';
@@ -149,7 +149,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
           </ButtonGroup>
 
           {/* level */}
-          <Box component="div" sx={{ display: "flex" }}>
+          <Box component="div" display="flex">
             <CustomNumberTextField id="filled-basic" label="Level" variant="filled" sx={{ flexShrink: 1, flexGrow: 1, mr: 1, my: 0 }} margin="dense" size="small"
               value={level} disabled={!sheet} placeholder={`0~${rarity * 4}`} onChange={l => update({ level: l })}
             />
@@ -161,7 +161,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
           </Box>
 
           {/* slot */}
-          <Box component="div" sx={{ display: "flex" }}>
+          <Box component="div" display="flex">
             <ArtifactSlotDropdown disabled={!sheet} slotKey={slotKey} onChange={slotKey => update({ slotKey })} />
             <CardLight sx={{ p: 1, ml: 1, flexGrow: 1 }}>
               <Suspense fallback={<Skeleton width="60%" />}>
@@ -173,7 +173,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
           </Box>
 
           {/* main stat */}
-          <Box component="div" sx={{ display: "flex" }}>
+          <Box component="div" display="flex">
             <DropdownButton title={<b>{artifact ? Stat.getStatNameWithPercent(artifact.mainStatKey) : t`mainStat`}</b>} disabled={!sheet} color={artifact ? "success" : "primary"} >
               {Artifact.slotMainStats(slotKey).map(mainStatK =>
                 <MenuItem key={mainStatK} selected={artifact?.mainStatKey === mainStatK} disabled={artifact?.mainStatKey === mainStatK} onClick={() => update({ mainStatKey: mainStatK })} >{Stat.getStatNameWithPercent(mainStatK)}</MenuItem>)}
@@ -255,7 +255,7 @@ function SubstatEfficiencyDisplayCard({ efficiency, max = false, t, valid }) {
   const eff = max ? "maxSubEff" : "curSubEff"
   return <CardLight sx={{ py: 1, px: 2 }}>
     <Grid container spacing={1}>
-      <Grid item className="text-center">{t(`editor.${eff}`)}</Grid>
+      <Grid item>{t(`editor.${eff}`)}</Grid>
       <Grid item flexGrow={1}>
         <BootstrapTooltip placement="top" title={<span>
           <Typography variant="h6">{t(`editor.${eff}`)}</Typography>

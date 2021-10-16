@@ -1,4 +1,4 @@
-import ImgIcon from "../Components/ImgIcon";
+import ImgIcon from "../Components/Image/ImgIcon";
 import { Translate } from "../Components/Translate";
 import { IArtifactSheet, SetEffectEntry } from "../Types/artifact";
 import { allArtifactSets, allSlotKeys, ArtifactRarity, ArtifactSetKey, SetNum, SlotKey } from "../Types/consts";

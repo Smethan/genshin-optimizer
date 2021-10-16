@@ -7,7 +7,7 @@ import { DatabaseContext } from "../../Database/Database";
 import usePromise from "../../ReactHooks/usePromise";
 import { CharacterKey } from "../../Types/consts";
 import DropdownButton, { DropdownButtonProps } from "../DropdownMenu/DropdownButton";
-import ImgIcon from "../ImgIcon";
+import ImgIcon from "../Image/ImgIcon";
 
 export type CharacterDropdownButtonProps = Omit<DropdownButtonProps, "title" | "onChange" | "children"> & {
   value: CharacterKey | ""

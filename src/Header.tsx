@@ -9,7 +9,6 @@ import ReactGA from 'react-ga';
 import { Trans, useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { artifactSlotIcon } from "./Artifact/Component/SlotNameWIthIcon";
-const buttonVariant = "overline"
 
 export default function Header(props) {
   return <Suspense fallback={<Skeleton variant="rectangular" height={64} />}>
@@ -59,24 +58,16 @@ function HeaderContent({ anchor }) {
             <Trans t={t} i18nKey="tabs.characters">Character</Trans>
           </Button>
           <Button variant="text" component={NavLink} to="/build" size="small" startIcon={<FontAwesomeIcon icon={faCalculator} />}>
-            <Typography variant={buttonVariant}>
-              <Trans t={t} i18nKey="tabs.builds">Builds</Trans>
-            </Typography>
+            <Trans t={t} i18nKey="tabs.builds">Builds</Trans>
           </Button>
           <Button variant="text" component={NavLink} to="/tools" size="small" startIcon={<FontAwesomeIcon icon={faTools} />}>
-            <Typography variant={buttonVariant}>
-              <Trans t={t} i18nKey="tabs.tools">Tools</Trans>
-            </Typography>
+            <Trans t={t} i18nKey="tabs.tools">Tools</Trans>
           </Button>
           <Button variant="text" component={NavLink} to="/database" size="small" startIcon={<FontAwesomeIcon icon={faCog} />}>
-            <Typography variant={buttonVariant}>
-              <Trans t={t} i18nKey="tabs.database">Database</Trans>
-            </Typography>
+            <Trans t={t} i18nKey="tabs.database">Database</Trans>
           </Button>
           <Button variant="text" component={NavLink} to="/doc" size="small" startIcon={<FontAwesomeIcon icon={faBook} />} >
-            <Typography variant={buttonVariant}>
-              <Trans t={t} i18nKey="tabs.doc">Documentation</Trans>
-            </Typography>
+            <Trans t={t} i18nKey="tabs.doc">Documentation</Trans>
           </Button>
         </Grid>
         <Grid item sx={{

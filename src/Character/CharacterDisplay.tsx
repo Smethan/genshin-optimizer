@@ -150,7 +150,7 @@ export default function CharacterDisplay(props) {
     <Grid container spacing={1}>
       <Suspense fallback={<Grid item xs={12}><Skeleton variant="rectangular" sx={{ width: "100%", height: "100%", minHeight: 5000 }} /></Grid>}>
         {!state.characterKeyToEdit && <Grid item xs={6} md={4} lg={4} >
-          <CardDark sx={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
+          <CardDark sx={{ height: "100%", minHeight: 400, width: "100%", display: "flex", flexDirection: "column" }}>
             <CardContent>
               <Typography sx={{ textAlign: "center" }}>Add New Character</Typography>
             </CardContent>

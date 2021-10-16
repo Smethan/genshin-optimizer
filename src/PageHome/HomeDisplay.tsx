@@ -20,7 +20,9 @@ function FeatureCard({ image, title, content, t }) {
   const [expanded, setExpanded] = useState(false);
 
   return <CardLight >
-    <CardMedia component="img" image={image} alt="test" sx={{ width: "100%", height: "auto" }} />
+    <CardContent sx={{ p: 1, pb: 0 }}>
+      <CardMedia component="img" image={image} alt="test" sx={{ width: "100%", height: "auto" }} />
+    </CardContent>
     <CardHeader
       action={
         <ExpandButton
@@ -32,6 +34,7 @@ function FeatureCard({ image, title, content, t }) {
           <ExpandMore />
         </ExpandButton>
       }
+      titleTypographyProps={{ variant: "subtitle1" }}
       title={title(t)}
     />
     <Collapse in={expanded} timeout="auto" unmountOnExit>
@@ -39,16 +42,16 @@ function FeatureCard({ image, title, content, t }) {
         {content(t)}
       </CardContent>
     </Collapse>
-  </CardLight>
+  </CardLight >
 }
 
 const features = [{
   image: art_editor,
-  title: t => <Button variant="text" component={RouterLink} to="/artifact" size="large" sx={{ p: 1 }}>
+  title: t => <Link component={RouterLink} to="/artifact">
     <Trans i18nKey="features.artifact.title" t={t}>
       Artifact Editor & Inventory
     </Trans>
-  </Button>,
+  </Link>,
   content: t => <Typography component="div" variant="body1" color="text.secondary" >
     <Trans i18nKey="features.artifact.content" t={t}>
       <ul>
@@ -63,11 +66,11 @@ const features = [{
   </Typography>
 }, {
   image: character_editor,
-  title: t => <Button variant="text" component={RouterLink} to="/character" size="large" sx={{ p: 1 }}>
+  title: t => <Link component={RouterLink} to="/character" >
     <Trans i18nKey="features.characterEditor.title" t={t}>
       Character & Weapon Editor
     </Trans>
-  </Button>,
+  </Link>,
   content: t => <Typography component="div" variant="body1" color="text.secondary" >
     <Trans i18nKey="features.characterEditor.content" t={t}>
       <ul>
@@ -82,11 +85,11 @@ const features = [{
   </Typography>
 }, {
   image: talent_screen,
-  title: t => <Button variant="text" component={RouterLink} to="/character" size="large" sx={{ p: 1 }}>
+  title: t => <Link component={RouterLink} to="/character" >
     <Trans i18nKey="features.characterCalc.title" t={t}>
       Character Damage Calculations
     </Trans>
-  </Button>,
+  </Link>,
   content: t => <Typography component="div" variant="body1" color="text.secondary" >
     <Trans i18nKey="features.characterCalc.content" t={t}>
       <ul>
@@ -102,11 +105,11 @@ const features = [{
   </Typography>
 }, {
   image: build_generator,
-  title: t => <Button variant="text" component={RouterLink} to="/build" size="large" sx={{ p: 1 }}>
+  title: t => <Link component={RouterLink} to="/build" >
     <Trans i18nKey="features.build.title" t={t}>
       Build Generator
     </Trans>
-  </Button>,
+  </Link>,
   content: t => <Typography component="div" variant="body1" color="text.secondary" >
     <Trans i18nKey="features.build.content" t={t}>
       <ul>
@@ -121,11 +124,11 @@ const features = [{
   </Typography>
 }, {
   image: tools,
-  title: t => <Button variant="text" component={RouterLink} to="/tools" size="large" sx={{ p: 1 }}>
+  title: t => <Link component={RouterLink} to="/tools" >
     <Trans i18nKey="features.tools.title" t={t}>
       Tools and Gadgets
     </Trans>
-  </Button>,
+  </Link>,
   content: t => <Typography component="div" variant="body1" color="text.secondary" >
     <Trans i18nKey="features.tools.content" t={t}>
       <ul>
@@ -149,28 +152,22 @@ export default function HomeDisplay() {
   }}>
     <CardDark>
       <CardContent>
-        <Typography variant="h5" gutterBottom >
-          <Trans i18nKey="intro.title" t={t}>
+        <Trans i18nKey="intro" t={t}>
+          <Typography variant="h5" gutterBottom >
             What is Genshin Optimizer?
-          </Trans>
-        </Typography>
-        <Typography variant="body1" color="text.secondary" gutterBottom >
-          <Trans i18nKey="intro.paraWhat" t={t}>
+          </Typography>
+          <Typography variant="body1" color="text.secondary" gutterBottom >
             Genshin Optimizer (GO) is an open-source fan-made website for the action-RPG gacha game <Link href="https://genshin.mihoyo.com/" target="_blank" rel="noreferrer"><strong>Genshin Impact</strong></Link>.
             It is mainly intended to help players with the complex aspect of the game: Artifact Optimization.
             Since artifacts are heavily RNG-based elements that directly contribute to how effective your characters are in the game, GO will try to find the best artifacts for your characters based on your current artifact inventory.
-          </Trans>
-        </Typography>
-        <Typography variant="body1" color="text.secondary" gutterBottom>
-          <Trans i18nKey="intro.paraArt" t={t}>
+          </Typography>
+          <Typography variant="body1" color="text.secondary" gutterBottom>
             GO can keep track of your artifacts, and allows more ease in filtering/comparing artifacts, it serves as a tool to help user find good artifacts in their inventory to level up, and bad artifacts to use as fodder.
-          </Trans>
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          <Trans i18nKey="intro.paraCalc" t={t}>
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
             Since GO can replicate the exact stats of any character, along with calculate all their damage numbers to up 1% accuracy, it can also serve as a Damage calculator, and a tool for theory crafting.
-          </Trans>
-        </Typography>
+          </Typography>
+        </Trans>
       </CardContent>
     </CardDark>
     <CardDark sx={{ width: "100%" }}  >
@@ -234,27 +231,21 @@ export default function HomeDisplay() {
       <Grid container>
         <Grid item xs={12} md={6}>
           <CardContent >
-            <Typography variant="h5" gutterBottom >
-              <Trans i18nKey="helpDev.title" t={t}>
+            <Trans i18nKey="helpDe" t={t}>
+              <Typography variant="h5" gutterBottom >
                 Want to help the developer?
-              </Trans>
-            </Typography>
-            <Typography variant="body1" color="text.secondary" gutterBottom >
-              <Trans i18nKey="helpDev.paraDonate" t={t}>
+              </Typography>
+              <Typography variant="body1" color="text.secondary" gutterBottom >
                 If you want to financially support the developer, please consider donating via <ABtn href={process.env.REACT_APP_PAYPAL_LINK} icon={<FontAwesomeIcon icon={faPaypal} />}>Paypal</ABtn> or <ABtn href={process.env.REACT_APP_PATREON_LINK} icon={<FontAwesomeIcon icon={faPatreon} />}>Patreon</ABtn>
                 . GO does not host ads, and will not lock any features behind a paywall.
-              </Trans>
-            </Typography>
-            <Typography variant="body1" color="text.secondary" gutterBottom >
-              <Trans i18nKey="helpDev.paraDiscord" t={t}>
-                If you want to help with localization/translation of GO to your native language, or request a feature/report a bug, join our <ABtn href={process.env.REACT_APP_DISCORD_LINK} icon={<FontAwesomeIcon icon={faDiscord} />}>discord</ABtn>. This is where you will find more GO-related information, and checkout what is being actively worked on.
-              </Trans>
-            </Typography>
-            <Typography variant="body1" color="text.secondary" gutterBottom >
-              <Trans i18nKey="helpDev.paraDevDiscord" t={t}>
+              </Typography>
+              <Typography variant="body1" color="text.secondary" gutterBottom >
+                If you want to help with localization/translation of GO to your native language, request a feature or report a bug, join our <ABtn href={process.env.REACT_APP_DISCORD_LINK} icon={<FontAwesomeIcon icon={faDiscord} />}>discord</ABtn>. This is where you will find more GO-related information, and checkout what is being actively worked on.
+              </Typography>
+              <Typography variant="body1" color="text.secondary" gutterBottom >
                 You can also join the <ABtn href={process.env.REACT_APP_DEVDISCORD_LINK} icon={<FontAwesomeIcon icon={faDiscord} />}>Genshin Dev discord</ABtn> if you are interested in creating Genshin apps.
-              </Trans>
-            </Typography>
+              </Typography>
+            </Trans>
           </CardContent>
         </Grid>
         <Grid item xs={12} md={6}>
@@ -266,18 +257,14 @@ export default function HomeDisplay() {
     </CardDark>
     <CardDark>
       <CardContent>
-        <Typography variant="h5" gutterBottom >
-          <Trans i18nKey="credits.title" t={t}>
+        <Trans i18nKey="credits" t={t}>
+          <Typography variant="h5" gutterBottom >
             Credit where credit is due
-          </Trans>
-        </Typography>
-        <Typography variant="body1" color="text.secondary" gutterBottom >
-          <Trans i18nKey="credits.intro" t={t}>
+          </Typography>
+          <Typography variant="body1" color="text.secondary" gutterBottom >
             GO is the culmination of hundreds of hours of programming/designing by two maintainers, <ABtn href={process.env.REACT_APP_FRZYC_LINK} icon={<FontAwesomeIcon icon={faUser} />}><strong> frzyc</strong></ABtn> and <ABtn href={process.env.REACT_APP_LANTUA_LINK} icon={<FontAwesomeIcon icon={faUser} />}><strong> lantua</strong></ABtn>. There are also a ton of other resources that aid in the creation of this website. Time to take a bow and thank them.
-          </Trans>
-        </Typography>
-        <Typography component="div" variant="body1" color="text.secondary" >
-          <Trans i18nKey="credits.thankList" t={t}>
+          </Typography>
+          <Typography component="div" variant="body1" color="text.secondary" >
             <ul>
               <li>Thanks to everyone in the community, and especially people on our <Link href={process.env.REACT_APP_DISCORD_LINK} target="_blank" rel="noreferrer">discord</Link> for providing feedback and helping us improve this tool.</li>
               <li>Thanks to <Link href="https://github.com/Dimbreath" target="_blank" rel="noreferrer">Dimbreath</Link>, for giving us a reliable, consistent source for Genshin data and numbers. All our calculations would be moot without them.</li>
@@ -286,8 +273,8 @@ export default function HomeDisplay() {
               <li>Thanks for everyone else, for sharing this tool, and getting more people to use this tool.</li>
               <li>Lastly, and most importantly, thank <strong>YOU</strong>, for using GO right now.</li>
             </ul>
-          </Trans>
-        </Typography>
+          </Typography>
+        </Trans>
       </CardContent>
     </CardDark>
   </Box>

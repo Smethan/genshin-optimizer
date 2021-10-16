@@ -166,11 +166,11 @@ function ShatteredCard({ stats }) {
   </BootstrapTooltip>
 
   return <CardDark><CardContent sx={{ p: 1 }}>
-    <span className="text-shattered">{Stat.getStatName(sKey)} {StatIcon.hydro}+{StatIcon.cryo}+ <small className="text-physical">Heavy Attack{information} </small> <strong>{stats[sKey]?.toFixed(Stat.fixedUnit(sKey))}</strong></span>
+    <ColorText color="shattered">{Stat.getStatName(sKey)} {StatIcon.hydro}+{StatIcon.cryo}+ <ColorText color="physical"><small>Heavy Attack{information} </small></ColorText> <strong>{stats[sKey]?.toFixed(Stat.fixedUnit(sKey))}</strong></ColorText>
   </CardContent></CardDark>
 }
 const crystalizeEleToDisplay = {
-  "default": <span className="text-crystalize">{Stat.getStatName("crystalize_hit")} {StatIcon.electro}/{StatIcon.hydro}/{StatIcon.pyro}/{StatIcon.cryo}+{StatIcon.geo}</span>,
+  "default": <ColorText color="crystalize">{Stat.getStatName("crystalize_hit")} {StatIcon.electro}/{StatIcon.hydro}/{StatIcon.pyro}/{StatIcon.cryo}+{StatIcon.geo}</ColorText>,
   "pyro": <span>{Stat.getStatName("pyro_crystalize_hit")} {StatIcon.pyro}+{StatIcon.geo}</span>,
   "electro": <span>{Stat.getStatName("electro_crystalize_hit")} {StatIcon.electro}+{StatIcon.geo}</span>,
   "cryo": <span>{Stat.getStatName("cryo_crystalize_hit")} {StatIcon.cryo}+{StatIcon.geo}</span>,
@@ -243,7 +243,7 @@ function SkillDisplayCard({ characterSheet, character: { talent, ascension, key:
       <ConditionalWrapper condition={!!onClickTitle} wrapper={actionWrapeprFunc} >
         <Grid container sx={{ flexWrap: "nowrap" }}>
           <Grid item>
-            <Box component="img" src={talentSheet?.img} className="thumb-mid" />
+            <Box component="img" src={talentSheet?.img} sx={{ width: 60, height: "auto" }} />
           </Grid>
           <Grid item flexGrow={1} sx={{ pl: 1 }}>
             <Typography variant="h6">{talentSheet?.name}</Typography>

@@ -44,7 +44,7 @@ export default function BuildAlert({ totBuildNumber, generatingBuilds, generatio
       title = <Typography>Current configuration {totBuildNumber <= maxBuildsToShow ? "generated" : "will generate"} <Monospace>{totalBuildNumberString}</Monospace> builds for <b>{characterName}</b>.</Typography>
   }
 
-  return <Alert color={color} variant="filled" icon={false} sx={{
+  return <Alert severity={color} variant="filled" sx={{
     "& .MuiAlert-message": {
       flexGrow: 1
     }

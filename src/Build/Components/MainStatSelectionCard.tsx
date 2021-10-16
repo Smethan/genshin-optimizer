@@ -40,7 +40,7 @@ export default function MainStatSelectionCard({ mainStatAssumptionLevel, mainSta
       </Grid>
     </CardContent>
     <Divider />
-    <CardContent className="mb-n2" sx={{
+    <CardContent sx={{
       // select all excluding last
       "> div:nth-last-of-type(n+2)": { mb: 1 }
     }}>

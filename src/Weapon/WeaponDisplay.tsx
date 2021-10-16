@@ -167,7 +167,7 @@ export default function WeaponDisplay(props) {
     <Grid container spacing={1}>
       <Suspense fallback={<Grid item xs={12}><Skeleton variant="rectangular" sx={{ width: "100%", height: "100%", minHeight: 500 }} /></Grid>}>
         {!editWeaponId && <Grid item xs={6} md={4} lg={4} xl={3}>
-          <CardDark sx={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
+          <CardDark sx={{ height: "100%", width: "100%", minHeight: 300, display: "flex", flexDirection: "column" }}>
             <CardContent>
               <Typography sx={{ textAlign: "center" }}>Add New Weapon</Typography>
             </CardContent>

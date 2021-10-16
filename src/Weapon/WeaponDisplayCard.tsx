@@ -8,10 +8,11 @@ import CardDark from "../Components/Card/CardDark"
 import CardLight from "../Components/Card/CardLight"
 import CharacterDropdownButton from "../Components/Character/CharacterDropdownButton"
 import CloseButton from "../Components/CloseButton"
+import ColorText from "../Components/ColoredText"
 import CustomNumberInput, { CustomNumberInputButtonGroupWrapper } from "../Components/CustomNumberInput"
 import DocumentDisplay from "../Components/DocumentDisplay"
 import DropdownButton from "../Components/DropdownMenu/DropdownButton"
-import ImgIcon from "../Components/ImgIcon"
+import ImgIcon from "../Components/Image/ImgIcon"
 import ModalWrapper from "../Components/ModalWrapper"
 import SqBadge from "../Components/SqBadge"
 import { Stars } from "../Components/StarDisplay"
@@ -160,7 +161,7 @@ export default function WeaponDisplayCard({
             <Typography><small>{weaponSheet.description}</small></Typography>
           </Grid>
           <Grid item sx={{ mb: -1 }} xs={12} md={9} lg={8} >
-            <Typography variant="h6" >{process.env.NODE_ENV === "development" && <span className="text-warning">{id || `""`} </span>}{weaponSheet.name} Lv. {WeaponSheet.getLevelString(weapon)} {weaponPassiveName && <SqBadge color="info">Refinement {refinement}</SqBadge>}</Typography>
+            <Typography variant="h6" >{process.env.NODE_ENV === "development" && <ColorText color="warning">{id || `""`} </ColorText>}{weaponSheet.name} Lv. {WeaponSheet.getLevelString(weapon)} {weaponPassiveName && <SqBadge color="info">Refinement {refinement}</SqBadge>}</Typography>
             <Typography><Stars stars={weaponSheet.rarity} /></Typography>
             <Typography variant="subtitle1">{weaponPassiveName}</Typography>
             <Typography gutterBottom>{weaponPassiveName && weaponSheet.passiveDescription(build)}</Typography>

@@ -5,7 +5,7 @@ import React, { useContext, useState } from "react";
 import Assets from "../../Assets/Assets";
 import { buildContext } from "../../Build/Build";
 import CardLight from "../../Components/Card/CardLight";
-import ImgIcon from "../../Components/ImgIcon";
+import ImgIcon from "../../Components/Image/ImgIcon";
 import { Stars } from "../../Components/StarDisplay";
 import StatDisplay from "../../Components/StatDisplay";
 import StatIcon from "../../Components/StatIcon";
@@ -44,7 +44,7 @@ export default function CharacterOverviewPane({ characterSheet, weaponSheet, cha
           <Grid container spacing={1}>
             {["auto", "skill", "burst"].map(tKey =>
               <Grid item xs={4} key={tKey}>
-                <Badge badgeContent={tlvl[tKey]} color={((tKey === "skill" && build.skillBoost) || (tKey === "burst" && build.burstBoost)) ? "info" : "secondary"}
+                <Badge badgeContent={tlvl[tKey] + 1} color={((tKey === "skill" && build.skillBoost) || (tKey === "burst" && build.burstBoost)) ? "info" : "secondary"}
                   overlap="circular"
                   anchorOrigin={{
                     vertical: 'bottom',

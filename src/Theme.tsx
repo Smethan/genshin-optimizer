@@ -270,9 +270,9 @@ export const theme = createTheme({
     MuiTypography: {
       styleOverrides: {
         root: {
-          "> ul": {
+          "& ul": {
             margin: 0,
-            paddingLeft: defaultTheme.spacing(2)
+            paddingLeft: defaultTheme.spacing(3)
           }
         }
       }

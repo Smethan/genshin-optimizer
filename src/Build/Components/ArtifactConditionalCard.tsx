@@ -1,7 +1,6 @@
 import { Replay } from '@mui/icons-material';
 import { Box, Button, CardContent, Divider, Grid, Typography } from '@mui/material';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Badge as BSBadge, Row } from 'react-bootstrap';
 import { ArtifactSheet } from '../../Artifact/ArtifactSheet';
 import SetEffectDisplay from '../../Artifact/Component/SetEffectDisplay';
 import CardDark from '../../Components/Card/CardDark';
@@ -24,7 +23,7 @@ export default function ArtifactConditionalCard({ disabled, initialStats }: { di
     let count = 0;
     crawlObject(initialStats?.conditionalValues?.artifact, [], v => Array.isArray(v), () => count++)
     return count
-  }, [initialStats?.conditionalValues])
+  }, [initialStats])
   return <CardLight><CardContent>
     <Button fullWidth onClick={onOpen} disabled={disabled}>
       <span>Default Artifact Set Effects {!!artifactCondCount && <SqBadge color="success">{artifactCondCount} Selected</SqBadge>}</span>
@@ -45,7 +44,7 @@ function ArtConditionalModal({ open, onClose, initialStats, artifactCondCount }:
     <CardContent>
       <Grid container spacing={1}>
         <Grid item flexGrow={1}>
-          <Typography variant="h6">Default Artifact Set Effects  {!!artifactCondCount && <BSBadge variant="success">{artifactCondCount} Selected</BSBadge>}</Typography>
+          <Typography variant="h6">Default Artifact Set Effects {!!artifactCondCount && <SqBadge color="success">{artifactCondCount} Selected</SqBadge>}</Typography>
         </Grid>
         <Grid item>
           <Button onClick={() => {
@@ -75,10 +74,10 @@ function ArtConditionalModal({ open, onClose, initialStats, artifactCondCount }:
                   <Typography variant="subtitle1">{rarities.map((ns, i) => <span key={ns}>{ns}<Stars stars={1} /> {i < (rarities.length - 1) ? "/ " : null}</span>)}</Typography>
                 </Box>
               </Box>
-              <CardContent><Row className="mb-n2">
-                {Boolean(setKey) && Object.keys(sheet.setEffects).map(key => parseInt(key) as SetNum).map(setNumKey =>
+              <CardContent>
+                {!!setKey && Object.keys(sheet.setEffects).map(key => parseInt(key) as SetNum).map(setNumKey =>
                   <SetEffectDisplay newBuild={undefined} key={setKey + setNumKey} {...{ setKey, setNumKey, equippedBuild: initialStats, editable: true, characterKey }} />)}
-              </Row></CardContent>
+              </CardContent>
             </CardLight>
           </Grid>
         })}
