@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardContent, Divider, Grid, ToggleButton, Typography } from '@mui/material';
+import { Button, Card, CardContent, Divider, Grid, ToggleButton, Typography } from '@mui/material';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useHistory } from 'react-router-dom';
 import ArtifactCard from '../../Artifact/ArtifactCard';
@@ -62,7 +62,7 @@ function CharacterArtifactPane({ sheets, character, character: { key: characterK
         <StatDisplayComponent {...{ sheets, character, equippedBuild: (newBuild && !compareBuild) ? undefined : equippedBuild, newBuild, statsDisplayKeys: statKeys }} />
       </CardContent>
       <Divider />
-      <Box sx={{ py: 1, px: 2 }}>
+      <CardContent sx={{ py: 1 }}>
         <Grid container spacing={1}>
           <Grid item>
             {newBuild ? <Button onClick={equipArts} className="mr-2">Equip artifacts</Button> : (database === localDatabase && <Button color="error" onClick={unequipArts}>Unequip all artifacts</Button>)}
@@ -81,7 +81,7 @@ function CharacterArtifactPane({ sheets, character, character: { key: characterK
           <Grid item flexGrow={1}></Grid>
           <Grid item>{!!mainStatAssumptionLevel && <Card sx={{ p: 1, bgcolor: t => t.palette.warning.dark }}><Typography><strong>Assume Main Stats are Level {mainStatAssumptionLevel}</strong></Typography></Card>}</Grid>
         </Grid>
-      </Box>
+      </CardContent>
     </CardLight>
     <Grid container spacing={1}>
       <Grid item xs={6} md={4} >

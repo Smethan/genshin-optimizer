@@ -213,9 +213,9 @@ function ExplainationModal({ modalShow, hide }: { modalShow: boolean, hide: () =
         </Grid>
       </CardContent>
       <Divider />
-      <Box sx={{ px: 2, py: 1 }}>
+      <CardContent sx={{ py: 1 }}>
         <CloseButton large onClick={hide} />
-      </Box>
+      </CardContent>
     </CardDark>
   </ModalWrapper>
 }

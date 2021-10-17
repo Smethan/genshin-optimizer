@@ -27,11 +27,12 @@ import { initialFilter, sortKeys } from "./ArtifactFilterUtil"
 export default function ArtifactFilter({ artifacts, filters, filterDispatch, ...props }) {
   const { t } = useTranslation(["artifact", "ui"]);
   const database = useContext(DatabaseContext)
-  const { numUnequip, numExclude, numInclude } = useMemo(() => {
+  const { numDelete, numUnequip, numExclude, numInclude } = useMemo(() => {
+    const numDelete = artifacts.reduce((a, art) => a + (art.lock ? 0 : 1), 0)
     const numUnequip = artifacts.reduce((a, art) => a + (art.location ? 1 : 0), 0)
     const numExclude = artifacts.reduce((a, art) => a + (art.exclude ? 1 : 0), 0)
     const numInclude = artifacts.length - numExclude
-    return { numUnequip, numExclude, numInclude }
+    return { numDelete, numUnequip, numExclude, numInclude }
   }, [artifacts])
 
   const { filterArtSetKey, filterSlotKey, filterMainStatKey, filterStars, filterLevelLow, filterLevelHigh, filterSubstats = initialFilter().filterSubstats,
@@ -54,8 +55,8 @@ export default function ArtifactFilter({ artifacts, filters, filterDispatch, ...
     artifacts.map(art => database.setArtLocation(art.id!, ""))
 
   const deleteArtifacts = () =>
-    window.confirm(`Are you sure you want to delete ${artifacts.length} artifacts?`) &&
-    artifacts.map(art => database.removeArt(art.id!))
+    window.confirm(`Are you sure you want to delete ${numDelete} artifacts?`) &&
+    artifacts.map(art => !art.lock && database.removeArt(art.id!))
 
   const excludeArtifacts = () =>
     window.confirm(`Are you sure you want to exclude ${numInclude} artifacts from build generations?`) &&
@@ -203,25 +204,25 @@ export default function ArtifactFilter({ artifacts, filters, filterDispatch, ...
           </Grid>
         </Grid>
         <Grid container spacing={1}>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Button fullWidth color="error" disabled={!numUnequip} onClick={unequipArtifacts} startIcon={<FontAwesomeIcon icon={faUserSlash} />}>
               <Trans t={t} i18nKey="button.unequipArtifacts" >Unequip Artifacts</Trans>
               <SqBadge sx={{ ml: 1 }} color={numUnequip ? "success" : "secondary"}>{numUnequip}</SqBadge>
             </Button>
           </Grid>
-          <Grid item xs={6} md={3}>
-            <Button fullWidth color="error" disabled={!artifacts.length} onClick={deleteArtifacts} startIcon={<FontAwesomeIcon icon={faTrash} />}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Button fullWidth color="error" disabled={!numDelete} onClick={deleteArtifacts} startIcon={<FontAwesomeIcon icon={faTrash} />}>
               <Trans t={t} i18nKey="button.deleteArtifacts" >Delete Artifacts</Trans>
-              <SqBadge sx={{ ml: 1 }} color={artifacts.length ? "success" : "secondary"}>{artifacts.length}</SqBadge>
+              <SqBadge sx={{ ml: 1 }} color={numDelete ? "success" : "secondary"}>{numDelete}</SqBadge>
             </Button>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Button fullWidth color="error" disabled={!numInclude} onClick={excludeArtifacts} startIcon={<FontAwesomeIcon icon={faBan} />}>
               <Trans t={t} i18nKey="button.excludeArtifacts" >Lock Artifacts</Trans>
               <SqBadge sx={{ ml: 1 }} color={numInclude ? "success" : "secondary"}>{numInclude}</SqBadge>
             </Button>
           </Grid>
-          <Grid item xs={6} md={3}>
+          <Grid item xs={12} sm={6} md={3}>
             <Button fullWidth color="error" disabled={!numExclude} onClick={includeArtifacts} startIcon={<FontAwesomeIcon icon={faChartLine} />}>
               <Trans t={t} i18nKey="button.includeArtifacts" >Unlock Artifacts</Trans>
               <SqBadge sx={{ ml: 1 }} color={numExclude ? "success" : "secondary"}>{numExclude}</SqBadge>

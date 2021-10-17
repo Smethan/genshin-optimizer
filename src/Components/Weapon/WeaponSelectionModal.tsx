@@ -65,9 +65,9 @@ export default function WeaponSelectionModal({ show, onHide, onSelect, filter = 
         })}
       </Grid></CardContent>
       <Divider />
-      <Box sx={{ px: 2, py: 1 }}>
+      <CardContent sx={{ py: 1 }}>
         <CloseButton large onClick={onHide} />
-      </Box>
+      </CardContent>
     </CardDark>
   </ModalWrapper>
 }

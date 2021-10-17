@@ -84,8 +84,8 @@ function ArtConditionalModal({ open, onClose, initialStats, artifactCondCount }:
       </Grid>
     </CardContent>
     <Divider />
-    <Box sx={{ px: 2, py: 1 }}>
+    <CardContent sx={{ py: 1 }}>
       <CloseButton large onClick={onClose} />
-    </Box>
+    </CardContent>
   </CardDark></ModalWrapper>
 }

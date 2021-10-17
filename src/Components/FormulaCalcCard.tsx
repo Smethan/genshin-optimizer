@@ -76,7 +76,7 @@ function CalculationDisplay({ sheets, build }: {
           <Typography variant="h6">{header}</Typography>
         </CardContent>
         <Divider />
-        <Box sx={{ p: 2 }}>
+        <CardContent>
           {fields.map((field, fieldIndex) => {
             if (Array.isArray(field))
               return <FormulaCalculationField key={fieldIndex} fieldKeys={field} build={build} />
@@ -95,7 +95,7 @@ function CalculationDisplay({ sheets, build }: {
             }
             return null
           })}
-        </Box>
+        </CardContent>
       </CardDark>
     })}
   </Suspense>

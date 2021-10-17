@@ -280,8 +280,16 @@ export const theme = createTheme({
     MuiCardContent: {
       styleOverrides: {
         root: {
-          "&:last-child": {
-            paddingBottom: defaultTheme.spacing(2)
+          [defaultTheme.breakpoints.down('sm')]: {
+            padding: defaultTheme.spacing(1),
+            "&:last-child": {
+              paddingBottom: defaultTheme.spacing(1),
+            }
+          },
+          [defaultTheme.breakpoints.up('sm')]: {
+            "&:last-child": {
+              paddingBottom: defaultTheme.spacing(2),
+            }
           }
         }
       }

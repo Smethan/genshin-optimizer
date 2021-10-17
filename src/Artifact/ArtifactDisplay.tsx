@@ -149,7 +149,7 @@ export default function ArtifactDisplay(props) {
     <Grid container spacing={1} >
       <Suspense fallback={<Grid item xs={12}><Skeleton variant="rectangular" sx={{ width: "100%", height: "100%", minHeight: 5000 }} /></Grid>}>
         {artifactsToShow.map((art, i) =>
-          <Grid item key={i} xs={6} md={4} lg={4} xl={3} >
+          <Grid item key={i} xs={12} sm={6} md={4} lg={4} xl={3} >
             <ArtifactCard
               artifactId={art.id}
               effFilter={effFilterSet}

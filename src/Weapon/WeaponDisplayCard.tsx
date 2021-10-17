@@ -97,7 +97,7 @@ export default function WeaponDisplayCard({
   const [showModal, setshowModal] = useState(false)
   return <CardLight>
     <CardContent sx={{ py: 1 }}>
-      <Grid container>
+      <Grid container spacing={1}>
         <Grid item flexGrow={1}>
           <Grid container spacing={1}>
             <Grid item >
@@ -155,12 +155,12 @@ export default function WeaponDisplayCard({
         const weaponBonusStats = weaponSheet.stats(build)
         const sections = weaponSheet.document
 
-        return <Grid container spacing={1} flexWrap="nowrap">
-          <Grid item xs={12} md={3} lg={4}>
+        return <Grid container spacing={1} >
+          <Grid item xs={12} sm={6} md={3} lg={4}>
             <Box component="img" src={weaponSheet.img} className={`grad-${weaponSheet.rarity}star`} sx={{ width: "100%", height: "auto", borderRadius: 1 }} />
             <Typography><small>{weaponSheet.description}</small></Typography>
           </Grid>
-          <Grid item sx={{ mb: -1 }} xs={12} md={9} lg={8} >
+          <Grid item sx={{ mb: -1 }} xs={12} sm={6} md={9} lg={8} >
             <Typography variant="h6" >{process.env.NODE_ENV === "development" && <ColorText color="warning">{id || `""`} </ColorText>}{weaponSheet.name} Lv. {WeaponSheet.getLevelString(weapon)} {weaponPassiveName && <SqBadge color="info">Refinement {refinement}</SqBadge>}</Typography>
             <Typography><Stars stars={weaponSheet.rarity} /></Typography>
             <Typography variant="subtitle1">{weaponPassiveName}</Typography>

@@ -5,6 +5,10 @@ import { SortOptions } from "./SortByFilters";
 export const sortKeys = ["level", "rarity", "name"]
 export default function characterSortOptions(database: ArtCharDatabase, characterSheets: StrictDict<CharacterKey, CharacterSheet>): SortOptions {
   return {
+    new: {
+      getValue: (ck) => database._getChar(ck as CharacterKey) ? 0 : 1,
+      tieBreaker: "name"
+    },
     name: {
       getValue: (ck) => ck,
     },

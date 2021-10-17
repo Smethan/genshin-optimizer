@@ -23,18 +23,20 @@ import StatIcon from "../StatIcon";
 import ElementToggle from "../ToggleButton/ElementToggle";
 import WeaponToggle from "../ToggleButton/WeaponToggle";
 
-const sortKeys = ["level", "rarity", "name"]
+const defaultSortKeys = ["level", "rarity", "name"]
 
 type characterFilter = (character: ICachedCharacter | undefined, sheet: CharacterSheet) => boolean
 
 type CharacterSelectionModalProps = {
   show: boolean,
+  newFirst?: boolean
   onHide: () => void,
   onSelect?: (ckey: CharacterKey) => void,
   filter?: characterFilter
 }
 
-export function CharacterSelectionModal({ show, onHide, onSelect, filter = () => true }: CharacterSelectionModalProps) {
+export function CharacterSelectionModal({ show, onHide, onSelect, filter = () => true, newFirst = false }: CharacterSelectionModalProps) {
+  const sortKeys = useMemo(() => newFirst ? ["new", ...defaultSortKeys] : defaultSortKeys, [newFirst])
   const database = useContext(DatabaseContext)
 
   const [sortBy, setsortBy] = useState(sortKeys[0])
@@ -55,25 +57,27 @@ export function CharacterSelectionModal({ show, onHide, onSelect, filter = () =>
   if (!characterSheets) return null
   return <ModalWrapper open={show} onClose={onHide} >
     <CardDark>
-      <Grid container spacing={1} sx={{ px: 2, py: 1 }}>
-        <Grid item>
-          <WeaponToggle sx={{ height: "100%" }} onChange={setweaponFilter} value={weaponFilter} size="small" />
-        </Grid>
-        <Grid item flexGrow={1}>
-          <ElementToggle sx={{ height: "100%" }} onChange={setelementalFilter} value={elementalFilter} size="small" />
-        </Grid>
+      <CardContent sx={{ py: 1 }}>
+        <Grid container spacing={1} >
+          <Grid item>
+            <WeaponToggle sx={{ height: "100%" }} onChange={setweaponFilter} value={weaponFilter} size="small" />
+          </Grid>
+          <Grid item flexGrow={1}>
+            <ElementToggle sx={{ height: "100%" }} onChange={setelementalFilter} value={elementalFilter} size="small" />
+          </Grid>
 
-        <Grid item flexGrow={1} />
+          <Grid item flexGrow={1} />
 
-        <Grid item >
-          <SortByButton sx={{ height: "100%" }}
-            sortKeys={sortKeys} value={sortBy} onChange={setsortBy as any}
-            ascending={ascending} onChangeAsc={setascending} />
+          <Grid item >
+            <SortByButton sx={{ height: "100%" }}
+              sortKeys={sortKeys} value={sortBy} onChange={setsortBy as any}
+              ascending={ascending} onChangeAsc={setascending} />
+          </Grid>
+          <Grid item>
+            <CloseButton onClick={onHide} />
+          </Grid>
         </Grid>
-        <Grid item>
-          <CloseButton onClick={onHide} />
-        </Grid>
-      </Grid>
+      </CardContent>
       <Divider />
       <CardContent><Grid container spacing={1}>
         {characterKeyList.map(characterKey => <Grid item key={characterKey} xs={6} md={4} lg={3} >

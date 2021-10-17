@@ -188,7 +188,7 @@ export default function WeaponDisplay(props) {
           </CardDark>
         </Grid>}
         {weaponIdsToShow.map(weaponId =>
-          <Grid item key={weaponId} xs={6} md={4} lg={4} xl={3} >
+          <Grid item key={weaponId} xs={12} sm={6} md={4} lg={4} xl={3} >
             <WeaponCard
               weaponId={weaponId}
               onDelete={deleteWeapon}

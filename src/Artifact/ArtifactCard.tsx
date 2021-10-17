@@ -75,7 +75,7 @@ export default function ArtifactCard({ artifactId, artifactObj, onEdit, onDelete
         </Box>
         <Grid container sx={{ flexWrap: "nowrap" }}>
           <Grid item flexGrow={1}>
-            <Typography color="text.secondary" variant="body2"  >
+            <Typography color="text.secondary" variant="body2">
               <SlotNameWithIcon slotKey={slotKey} />
             </Typography>
             <Typography variant="h6">
@@ -107,8 +107,8 @@ export default function ArtifactCard({ artifactId, artifactObj, onEdit, onDelete
           const statName = Stat.getStatName(stat.key)
           return (<Box key={i} sx={{ display: "flex" }}>
             <Box sx={{ flexGrow: 1 }}>
-              <SqBadge color={(numRolls ? rollColor : "danger") as any} sx={{ mr: 1 }}><strong>{numRolls ? numRolls : "?"}</strong></SqBadge>
-              <Typography color={(numRolls ? `${rollColor}.main` : "text.danger") as any} component="span">{statName}{`+${valueStringWithUnit(stat.value, Stat.getStatUnit(stat.key))}`}</Typography>
+              <SqBadge color={(numRolls ? rollColor : "error") as any} sx={{ mr: 1 }}><strong>{numRolls ? numRolls : "?"}</strong></SqBadge>
+              <Typography color={(numRolls ? `${rollColor}.main` : "error.main") as any} component="span">{statName}{`+${valueStringWithUnit(stat.value, Stat.getStatUnit(stat.key))}`}</Typography>
             </Box>
             <Typography sx={{ opacity: effOpacity }}>{stat.key && effFilter.has(stat.key) ? valueStringWithUnit(efficiency, "eff") : "-"}</Typography>
           </Box>)
@@ -141,7 +141,7 @@ export default function ArtifactCard({ artifactId, artifactObj, onEdit, onDelete
                   <FontAwesomeIcon icon={exclude ? faBan : faChartLine} className="fa-fw" />
                 </Button>
               </Tooltip>
-              {!!onDelete && <Button color="error" size="small" onClick={() => onDelete(id)}>
+              {!!onDelete && <Button color="error" size="small" onClick={() => onDelete(id)} disabled={lock}>
                 <FontAwesomeIcon icon={faTrashAlt} className="fa-fw" />
               </Button>}
             </ButtonGroup>

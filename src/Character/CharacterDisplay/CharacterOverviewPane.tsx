@@ -1,6 +1,6 @@
 import { faEdit, faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Badge, Box, Button, CardContent, CardMedia, Grid, Typography } from "@mui/material";
+import { Badge, Box, Button, CardContent, CardMedia, Divider, Grid, Typography } from "@mui/material";
 import React, { useContext, useState } from "react";
 import Assets from "../../Assets/Assets";
 import { buildContext } from "../../Build/Build";
@@ -207,6 +207,9 @@ function StatDisplayCard({ title, content, editContent }) {
           </Button>
         </Grid>
       </Grid>
+    </CardContent>
+    <Divider />
+    <CardContent>
       {edit ? editContent : content}
     </CardContent>
   </CardLight>

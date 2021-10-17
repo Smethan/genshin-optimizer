@@ -1,6 +1,6 @@
 import { faCalculator, faLink, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Box, Button, CardActionArea, CardHeader, Chip, Grid, Skeleton, Typography } from '@mui/material';
+import { Box, Button, CardActionArea, CardContent, CardHeader, Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtifactSheet } from '../Artifact/ArtifactSheet';
@@ -100,7 +100,7 @@ export default function CharacterCard({ characterKey, onEdit, onDelete, footer =
             </Grid>
           </Grid>
         </Box>
-        <Box sx={{ px: 2, mb: 1, mt: 2, width: "100%" }}>
+        <CardContent sx={{ pb: 0, width: "100%" }}>
           <CardDark sx={{ mb: 1 }}>
             <Grid container sx={{ flexWrap: "nowrap" }}>
               <Grid item container xs={3} md={4} alignContent="flex-end" className={`grad-${weaponSheet.rarity}star`} >
@@ -133,10 +133,10 @@ export default function CharacterCard({ characterKey, onEdit, onDelete, footer =
               </Grid>
             })}
           </Grid>
-        </Box>
+        </CardContent>
         {/* grow to fill the 100% heigh */}
         <Box flexGrow={1} />
-        <Box sx={{ px: 2, py: 1 }} width="100%">
+        <CardContent sx={{ py: 1, width: "100%" }} >
           {statkeys.map(statKey => {
             let unit = Stat.getStatUnit(statKey)
             let statVal = stats[statKey]
@@ -147,7 +147,7 @@ export default function CharacterCard({ characterKey, onEdit, onDelete, footer =
               </Typography>
             </Box>
           })}
-        </Box>
+        </CardContent>
       </ConditionalWrapper>
       {footer && <Grid container spacing={1} sx={{ py: 1, px: 2 }}>
         <Grid item>

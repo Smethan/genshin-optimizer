@@ -223,23 +223,25 @@ export default function EXPCalc(props) {
       </Grid>
     </CardContent>
     <Divider />
-    <Grid container sx={{ px: 2, py: 1 }} spacing={2}>
-      <Grid item flexGrow={1}>
-        {!!invalidText && <Alert variant="filled" severity="error" >{invalidText}</Alert>}
+    <CardContent sx={{ py: 1 }}>
+      <Grid container spacing={2}>
+        <Grid item flexGrow={1}>
+          {!!invalidText && <Alert variant="filled" severity="error" >{invalidText}</Alert>}
+        </Grid>
+        <Grid item xs="auto"><Button disabled={!!invalidText}
+          onClick={() => {
+            setLevel(finalLvl)
+            setCurExp(finalExp)
+            Object.entries(bookResultObj).forEach(([bookKey, val]) => setBookState[bookKey]?.(bookState[bookKey] - val))
+            setMora(finalMora)
+          }}
+          color="success"
+          startIcon={<Check />}
+          sx={{ height: "100%" }}
+        >Apply</Button>
+        </Grid>
       </Grid>
-      <Grid item xs="auto"><Button disabled={!!invalidText}
-        onClick={() => {
-          setLevel(finalLvl)
-          setCurExp(finalExp)
-          Object.entries(bookResultObj).forEach(([bookKey, val]) => setBookState[bookKey]?.(bookState[bookKey] - val))
-          setMora(finalMora)
-        }}
-        color="success"
-        startIcon={<Check />}
-        sx={{ height: "100%" }}
-      >Apply</Button>
-      </Grid>
-    </Grid>
+    </CardContent>
   </CardDark>
 }
 function BookDisplay(props) {

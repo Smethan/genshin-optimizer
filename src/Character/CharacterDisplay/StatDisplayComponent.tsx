@@ -25,7 +25,7 @@ export default function StatDisplayComponent({ sheets, sheets: { characterSheet,
   const build = newBuild ? newBuild : equippedBuild
   return <Grid container spacing={1}>{Object.entries(statsDisplayKeys).map(([sectionKey, sectionValues]: any) => {
     const header = getFormulaTargetsDisplayHeading(sectionKey, sheets, build?.characterEle)
-    return <Grid item key={sectionKey} xs={12} md={6} lg={4}>
+    return <Grid item key={sectionKey} xs={12} sm={6} md={4} lg={4}>
       <CardDark sx={{ height: "100%", }}>
         <CardContent>
           <Typography variant="subtitle1" gutterBottom>{header}</Typography>

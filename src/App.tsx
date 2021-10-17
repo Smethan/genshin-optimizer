@@ -59,7 +59,7 @@ function App() {
       <Grid item >
         <Header anchor="back-to-top-anchor" />
       </Grid>
-      <Container maxWidth="xl">
+      <Container maxWidth="xl" sx={{ px: { xs: 0.5, sm: 1, md: 2 } }}>
         <Suspense fallback={<Skeleton variant="rectangular" sx={{ width: "100%", height: "100%" }} />}>
           <Switch>
             <Route path="/artifact" component={ArtifactDisplay} />

@@ -37,12 +37,12 @@ export default function HomeDisplay(props: any) {
       <Divider />
       <CardContent>
         <Grid container spacing={1}>
-          <Grid item xs={3} md={2}>
+          <Grid item xs={12} md={2}>
             <CardLight sx={{ height: "100%" }}>
               <Tabs
                 orientation="vertical"
                 value={currentTab}
-                aria-label="Vertical tabs example"
+                aria-label="Documentation Navigation"
                 sx={{ borderRight: 1, borderColor: 'divider' }}
               >
                 <Tab label="Overview" value="" component={Link} to="/" />
@@ -53,7 +53,7 @@ export default function HomeDisplay(props: any) {
               </Tabs>
             </CardLight>
           </Grid>
-          <Grid item xs={9} md={10}>
+          <Grid item xs={12} md={10}>
             <CardLight sx={{ height: "100%" }}>
               <CardContent>
                 <Suspense fallback={<Skeleton variant="rectangular" width="100%" height={600} />}>

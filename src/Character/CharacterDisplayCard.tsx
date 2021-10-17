@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Card, CardContent, Divider, Grid, MenuItem, Skeleton, Tab, Tabs, Typography } from '@mui/material';
+import { Button, ButtonGroup, Card, CardContent, Divider, Grid, MenuItem, Skeleton, Tab, Tabs, Typography } from '@mui/material';
 import { Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { ArtifactSheet } from '../Artifact/ArtifactSheet';
 import { buildContext } from '../Build/Build';
@@ -156,9 +156,9 @@ export default function CharacterDisplayCard({ characterKey, setCharacterKey, fo
         </TabPanel >}
       </CardContent>
       {!!footer && <Divider />}
-      {footer && <Box sx={{ px: 2, py: 1 }}>
+      {footer && <CardContent sx={{ py: 1 }}>
         {footer}
-      </Box>}
+      </CardContent>}
     </buildContext.Provider>
   </CardDark>
 }

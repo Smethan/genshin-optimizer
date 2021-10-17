@@ -1,6 +1,6 @@
 import { faQuestionCircle } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Box, Button, CardContent, Divider, Grid, Skeleton, Typography } from "@mui/material"
+import { Button, CardContent, Divider, Grid, Skeleton, Typography } from "@mui/material"
 import { Suspense, useState } from "react"
 import { dbStorage } from "../Database/DBStorage"
 import { getRandomElementFromArray } from "../Util/Util"
@@ -50,9 +50,9 @@ export default function InfoComponent({ pageKey = "", text = "", modalTitle = ""
           </Suspense>
         </CardContent>
         <Divider />
-        <Box sx={{ px: 2, py: 1 }}>
+        <CardContent sx={{ py: 1 }}>
           <CloseButton large onClick={closeModal} />
-        </Box>
+        </CardContent>
       </CardDark>
     </ModalWrapper >
   </CardDark>

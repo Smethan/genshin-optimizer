@@ -125,11 +125,13 @@ function DownloadCard({ forceUpdate }) {
       <Typography variant="caption"><Trans t={t} i18nKey="downloadCard.databaseDisclaimer" /></Typography>
     </CardContent>
     <Divider />
-    <Grid container sx={{ px: 2, py: 1 }} spacing={2}>
-      <Grid item><Button disabled={!downloadValid} onClick={() => download(JSON.stringify(exportGOOD(dbStorage)))} startIcon={<Download />}><Trans t={t} i18nKey="downloadCard.button.download" /></Button></Grid>
-      <Grid item flexGrow={1} ><Button disabled={!downloadValid} color="info" onClick={copyToClipboard} startIcon={<FontAwesomeIcon icon={faClipboard} />}><Trans t={t} i18nKey="downloadCard.button.copy" /></Button></Grid>
-      <Grid item><Button disabled={!downloadValid} color="error" onClick={deleteDB} startIcon={<FontAwesomeIcon icon={faTrashAlt} />}><Trans t={t} i18nKey="downloadCard.button.delete" /></Button></Grid>
-    </Grid>
+    <CardContent sx={{ py: 1 }}>
+      <Grid container spacing={2}>
+        <Grid item><Button disabled={!downloadValid} onClick={() => download(JSON.stringify(exportGOOD(dbStorage)))} startIcon={<Download />}><Trans t={t} i18nKey="downloadCard.button.download" /></Button></Grid>
+        <Grid item flexGrow={1} ><Button disabled={!downloadValid} color="info" onClick={copyToClipboard} startIcon={<FontAwesomeIcon icon={faClipboard} />}><Trans t={t} i18nKey="downloadCard.button.copy" /></Button></Grid>
+        <Grid item><Button disabled={!downloadValid} color="error" onClick={deleteDB} startIcon={<FontAwesomeIcon icon={faTrashAlt} />}><Trans t={t} i18nKey="downloadCard.button.delete" /></Button></Grid>
+      </Grid>
+    </CardContent>
   </CardLight>
 }
 
@@ -308,9 +310,9 @@ function GOUploadAction({ data: { storage }, data, reset }: { data: GOImportResu
     reset()
   }
 
-  return <><Divider /><Box sx={{ px: 2, py: 1 }}>
+  return <><Divider /><CardContent sx={{ py: 1 }}>
     <Button color={dataValid ? "success" : "error"} disabled={!dataValid} onClick={replaceDB} startIcon={<FontAwesomeIcon icon={faFileUpload} />}><Trans t={t} i18nKey="settings:uploadCard.replaceDatabase" /></Button>
-  </Box></>
+  </CardContent></>
 }
 
 type UploadData = GOImportResult | GOODImportResult

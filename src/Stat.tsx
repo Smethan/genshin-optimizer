@@ -12,11 +12,11 @@ export default class Stat {
     if (this instanceof Stat)
       throw Error('A static class cannot be instantiated.');
   }
-  static getStatName = (key, defVal = "") => <ColorText color={StatData[key]?.variant} sx={{ whiteSpace: "nowrap" }} >{StatData[key]?.name ?? defVal}</ColorText>
+  static getStatName = (key, defVal = "") => <ColorText color={StatData[key]?.variant} >{StatData[key]?.name ?? defVal}</ColorText>
 
   static getStatNameRaw = (key, defVal = "") => StatData[key]?.name || defVal
   static getStatNameWithPercent = (key, defVal = "", variant = true) =>
-    <ColorText color={variant ? StatData[key]?.variant : undefined} sx={{ whiteSpace: "nowrap" }} >{StatData[key]?.name ?? defVal}{key?.endsWith('_') && "%"}</ColorText>
+    <ColorText color={variant ? StatData[key]?.variant : undefined}  >{StatData[key]?.name ?? defVal}{key?.endsWith('_') && "%"}</ColorText>
 
   static getStatVariant = (key, defVal = "") =>
     StatData[key]?.variant || defVal

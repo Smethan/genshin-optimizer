@@ -285,7 +285,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
         <CardContent>
           <Grid container spacing={1} >
             {/* Left half */}
-            <Grid item xs={12} lg={5} sx={{
+            <Grid item xs={12} md={6} lg={5} sx={{
               // select all excluding last
               "> div:nth-last-of-type(n+2)": { mb: 1 }
             }}>
@@ -307,7 +307,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
             </Grid>
 
             {/* Right half */}
-            <Grid item xs={12} lg={7} sx={{
+            <Grid item xs={12} md={6} lg={7} sx={{
               // select all excluding last
               "> div:nth-last-of-type(n+2)": { mb: 1 }
             }}>

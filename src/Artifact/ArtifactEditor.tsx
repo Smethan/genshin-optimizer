@@ -136,7 +136,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
     <Collapse in={expanded} timeout="auto" unmountOnExit><CardContent sx={{ pt: 0 }}>
       <Grid container spacing={1} sx={{ mb: 1 }}>
         {/* Left column */}
-        <Grid item xs={12} lg={6} sx={{
+        <Grid item xs={12} md={6} lg={6} sx={{
           // select all excluding last
           "> div:nth-last-of-type(n+2)": { mb: 1 }
         }}>
@@ -192,7 +192,7 @@ export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: Artifac
         </Grid>
 
         {/* Right column */}
-        <Grid item xs={12} lg={6} sx={{
+        <Grid item xs={12} md={6} lg={6} sx={{
           // select all excluding last
           "> div:nth-last-of-type(n+2)": { mb: 1 }
         }}>
