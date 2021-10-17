@@ -78,8 +78,8 @@ export function DamageOptionsCard({ character }: { character: ICachedCharacter }
   return <CardLight>
     <CardContent>
       <Grid container spacing={1}>
-        <Grid item><InfusionAuraDropdown character={character} /></Grid>
         <Grid item><HitModeToggle character={character} size="small" /></Grid>
+        <Grid item><InfusionAuraDropdown character={character} /></Grid>
         <Grid item><ReactionToggle character={character} build={build} size="small" /></Grid>
       </Grid>
     </CardContent>

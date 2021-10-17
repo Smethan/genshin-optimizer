@@ -1,4 +1,4 @@
-import { SwapHoriz } from "@mui/icons-material"
+import { Lock, LockOpen, SwapHoriz } from "@mui/icons-material"
 import { Box, Button, ButtonGroup, CardContent, Divider, Grid, MenuItem, Typography } from "@mui/material"
 import { useCallback, useContext, useEffect, useMemo, useState } from "react"
 import Assets from "../Assets/Assets"
@@ -58,7 +58,7 @@ export default function WeaponDisplayCard({
   const weapon = useMemo(() =>
     databaseToken && database._getWeapon(propWeaponId!)!,
     [propWeaponId, databaseToken, database])
-  const { key, level, refinement, ascension } = weapon
+  const { key, level, refinement, ascension, lock } = weapon
   const { location = "", id } = weapon as Partial<ICachedWeapon>
   const weaponSheet: WeaponSheet | undefined = usePromise(WeaponSheet.get(key), [key])
   const weaponTypeKey = weaponSheet?.weaponType
@@ -114,7 +114,7 @@ export default function WeaponDisplayCard({
                 </DropdownButton>
               </ButtonGroup>
             </Grid>
-            <Grid item xs="auto">
+            <Grid item >
               <ButtonGroup sx={{ bgcolor: t => t.palette.contentLight.main }} >
                 <CustomNumberInputButtonGroupWrapper >
                   <CustomNumberInput onChange={setLevel} value={level}
@@ -133,6 +133,11 @@ export default function WeaponDisplayCard({
                   })}
                 </DropdownButton>
               </ButtonGroup>
+            </Grid>
+            <Grid item>
+              <Button color="error" onClick={() => id && database.updateWeapon({ lock: !lock }, id)} startIcon={lock ? <Lock /> : <LockOpen />}>
+                {lock ? "Locked" : "Unlocked"}
+              </Button>
             </Grid>
           </Grid>
         </Grid>

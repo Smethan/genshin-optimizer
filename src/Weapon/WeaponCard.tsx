@@ -27,7 +27,6 @@ export default function WeaponCard({ weaponId, onClick, onEdit, onDelete, canEqu
   useEffect(() =>
     weaponId ? database.followWeapon(weaponId, updateDatabaseWeapon) : undefined,
     [weaponId, updateDatabaseWeapon, database])
-  const lock = true// TODO: missing lock?
   const weapon = databaseWeapon
   const weaponSheet = usePromise(weapon?.key && WeaponSheet.get(weapon.key), [weapon?.key])
 
@@ -43,7 +42,7 @@ export default function WeaponCard({ weaponId, onClick, onEdit, onDelete, canEqu
 
   const equipOnChar = useCallback((charKey: CharacterKey | "") => database.setWeaponLocation(weaponId, charKey), [database, weaponId],)
   if (!weapon || !weaponSheet) return null;
-  const { level, ascension, refinement, id, location = "" } = weapon
+  const { level, ascension, refinement, id, location = "", lock } = weapon
 
 
   const weaponTypeKey = weaponSheet.weaponType
@@ -59,7 +58,7 @@ export default function WeaponCard({ weaponId, onClick, onEdit, onDelete, canEqu
       <CardLight sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
         <div className={`grad-${weaponSheet.rarity}star`} >
           <CardHeader title={weaponSheet.name} avatar={<ImgIcon sx={{ fontSize: "2em" }} src={Assets.weaponTypes?.[weaponTypeKey]} />} titleTypographyProps={{ variant: "h6" }}
-            action={!onClick && <IconButton color="secondary" onClick={() => database.updateArt({ lock: !lock }, id)}>
+            action={!onClick && <IconButton color="secondary" onClick={() => database.updateWeapon({ lock: !lock }, id)}>
               {lock ? <Lock /> : <LockOpen />}
             </IconButton>} />
           <Box sx={{ px: 2 }}>
@@ -104,7 +103,7 @@ export default function WeaponCard({ weaponId, onClick, onEdit, onDelete, canEqu
               {!!onEdit && <Button color="info" size="small" onClick={() => onEdit(id)} >
                 <FontAwesomeIcon icon={faEdit} className="fa-fw" />
               </Button>}
-              {!!onDelete && <Button color="error" size="small" onClick={() => onDelete(id)} disabled={!!location}>
+              {!!onDelete && <Button color="error" size="small" onClick={() => onDelete(id)} disabled={!!location || lock} >
                 <FontAwesomeIcon icon={faTrashAlt} className="fa-fw" />
               </Button>}
             </ButtonGroup>
