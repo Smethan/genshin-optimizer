@@ -1,8 +1,9 @@
 import { Replay } from '@mui/icons-material';
-import { Box, Button, CardContent, Grid, Pagination, Skeleton, ToggleButton, Typography } from '@mui/material';
+import { Alert, Box, Button, CardContent, Grid, Link, Pagination, Skeleton, ToggleButton, Typography } from '@mui/material';
 import React, { Suspense, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import ReactGA from 'react-ga';
 import { Trans, useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router-dom';
 import CardDark from '../Components/Card/CardDark';
 import InfoComponent from '../Components/InfoComponent';
 import SolidToggleButtonGroup from '../Components/SolidToggleButtonGroup';
@@ -54,6 +55,8 @@ export default function ArtifactDisplay(props) {
   useEffect(() => {
     dbStorage.set("ArtifactDisplay.state", filters)
   }, [filters])
+
+  const noArtifact = useMemo(() => !database._getArts().length, [database])
 
   const { artifacts, totalArtNum } = useMemo(() => {
     const { filterArtSetKey, filterSlotKey, filterMainStatKey, filterStars, filterLevelLow, filterLevelHigh,
@@ -127,6 +130,9 @@ export default function ArtifactDisplay(props) {
     >
       <InfoDisplay />
     </InfoComponent>
+
+    {noArtifact && <Alert severity="info" variant="filled">Looks like you haven't added any artifacts yet. If you want, there are <Link color="warning.main" component={RouterLink} to="/scanner">automatic scanners</Link> that can speed up the import process!</Alert>}
+
     <Box ref={scrollRef} >
       <ArtifactEditor
         artifactIdToEdit={artToEditId}

@@ -110,9 +110,9 @@ function HeaderContent({ anchor }) {
       <Tab value="" component={RouterLink} to="/" label={<Typography variant="h6" sx={{ px: 1 }}>
         <Trans t={t} i18nKey="pageTitle">Genshin Optimizer</Trans>
       </Typography>} />
-      {content.map(({ i18Key, value, to, svg }) => <Tab value={value} component={RouterLink} to={to} icon={<FontAwesomeIcon icon={svg} />} label={t(i18Key)} />)}
+      {content.map(({ i18Key, value, to, svg }) => <Tab key={value} value={value} component={RouterLink} to={to} icon={<FontAwesomeIcon icon={svg} />} label={t(i18Key)} />)}
       <Box flexGrow={1} />
-      {links.map(({ i18Key, href, label, svg }) => <Tab component="a" href={href} target="_blank" icon={<FontAwesomeIcon icon={svg} />} onClick={e => ReactGA.outboundLink({ label }, () => { })} label={isLarge && t(i18Key)} />)}
+      {links.map(({ i18Key, href, label, svg }) => <Tab key={label} component="a" href={href} target="_blank" icon={<FontAwesomeIcon icon={svg} />} onClick={e => ReactGA.outboundLink({ label }, () => { })} label={isLarge && t(i18Key)} />)}
     </Tabs>
   </AppBar>
 }

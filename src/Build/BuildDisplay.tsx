@@ -1,9 +1,10 @@
 import { faCalculator, faCheckSquare, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Close } from '@mui/icons-material';
-import { Box, Button, ButtonGroup, CardContent, Divider, Grid, MenuItem, Tooltip, Typography } from '@mui/material';
-import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert, Box, Button, ButtonGroup, CardContent, Divider, Grid, Link, MenuItem, Skeleton, Typography } from '@mui/material';
+import React, { lazy, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactGA from 'react-ga';
+import { Link as RouterLink } from 'react-router-dom';
 // eslint-disable-next-line
 import Worker from "worker-loader!./BuildWorker";
 import Artifact from '../Artifact/Artifact';
@@ -27,10 +28,10 @@ import { allSlotKeys, CharacterKey } from '../Types/consts';
 import { ICalculatedStats } from '../Types/stats';
 import { deepClone, objectFromKeyMap } from '../Util/Util';
 import WeaponSheet from '../Weapon/WeaponSheet';
-import ArtifactConditionalCard from './Components/ArtifactConditionalCard';
 import { buildContext, calculateTotalBuildNumber, maxBuildsToShowList } from './Build';
 import { initialBuildSettings } from './BuildSetting';
 import ArtifactBuildDisplayItem from './Components/ArtifactBuildDisplayItem';
+import ArtifactConditionalCard from './Components/ArtifactConditionalCard';
 import ArtifactSetPicker from './Components/ArtifactSetPicker';
 import BonusStatsCard from './Components/BonusStatsCard';
 import BuildAlert, { warningBuildNumber } from './Components/BuildAlert';
@@ -38,8 +39,8 @@ import CharacterSelectionCard from './Components/CharacterSelectionCard';
 import EnemyEditorCard from './Components/EnemyEditorCard';
 import HitModeCard from './Components/HitModeCard';
 import MainStatSelectionCard, { artifactsSlotsToSelectMainStats } from './Components/MainStatSelectionCard';
-import StatFilterCard from './Components/StatFilterCard';
 import OptimizationTargetSelector from './Components/OptimizationTargetSelector';
+import StatFilterCard from './Components/StatFilterCard';
 const InfoDisplay = React.lazy(() => import('./InfoDisplay'));
 
 //lazy load the character display
@@ -115,6 +116,9 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
       return Character.calculateBuildwithArtifact(initialStats, arts, artifactSheets)
     }).filter(build => build)
   }, [builds, database, initialStats, artifactSheets])
+
+  const noCharacter = useMemo(() => !database._getCharKeys().length, [database])
+  const noArtifact = useMemo(() => !database._getArts().length, [database])
 
   const buildSettingsDispatch = useCallback((action) => {
     if (!character) return
@@ -263,10 +267,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
   )
 
   return <buildContext.Provider value={{ equippedBuild: initialStats }}>
-    <Box sx={{
-      mt: 1,
-      "> div": { mb: 1 },
-    }}>
+    <Box display="flex" flexDirection="column" gap={1} sx={{ my: 1 }}>
       <InfoComponent
         pageKey="buildPage"
         modalTitle="Character Management Page Guide"
@@ -275,7 +276,8 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
           "The more complex the formula, the longer the generation time.",]}
       ><InfoDisplay /></InfoComponent>
       <BuildModal {...{ build: buildStats[modalBuild], showCharacterModal, characterKey, selectCharacter, onClose: closeBuildModal }} />
-
+      {noCharacter && <Alert severity="error" variant="filled"> Opps! It looks like you haven't added a character to GO yet! You should go to the <Link component={RouterLink} to="/character">Characters</Link> page and add some!</Alert>}
+      {noArtifact && <Alert severity="warning" variant="filled"> Opps! It looks like you haven't added any artifacts to GO yet! You should go to the <Link component={RouterLink} to="/artifact">Artifacts</Link> page and add some!</Alert>}
       {/* Build Generator Editor */}
       <CardDark>
         <CardContent sx={{ py: 1 }}>
@@ -318,7 +320,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
                 disabled={generatingBuilds} initialStats={initialStats} onChange={(index, key, num) => buildSettingsDispatch({ type: 'setFilter', index, key, num })} />)}
 
               {/* use equipped/excluded */}
-              <CardLight><CardContent>
+              {characterKey && <CardLight><CardContent>
                 <Grid container spacing={1}>
                   <Grid item flexGrow={1}>
                     <Button fullWidth onClick={() => buildSettingsDispatch({ useEquippedArts: !useEquippedArts })} disabled={generatingBuilds}>
@@ -331,10 +333,10 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
                     </Button>
                   </Grid>
                 </Grid>
-              </CardContent></CardLight>
+              </CardContent></CardLight>}
 
               {/* main stat selector */}
-              <MainStatSelectionCard
+              {characterKey && <MainStatSelectionCard
                 mainStatAssumptionLevel={mainStatAssumptionLevel}
                 mainStatKeys={mainStatKeys}
                 onChangeMainStatKey={(slotKey, mainStatKey = undefined) => {
@@ -345,7 +347,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
                 }}
                 onChangeAssLevel={mainStatAssumptionLevel => buildSettingsDispatch({ mainStatAssumptionLevel })}
                 disabled={generatingBuilds}
-              />
+              />}
             </Grid>
           </Grid>
           {/* Footer */}
@@ -358,11 +360,17 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
                   onClick={generateBuilds}
                   startIcon={<FontAwesomeIcon icon={faCalculator} />}
                 >Generate</Button>
-                <Tooltip title={<Typography>Decreasing the number of generated build will decrease build calculation time for large number of builds.</Typography>} placement="top" arrow>
-                  <DropdownButton disabled={generatingBuilds} title={<span><b>{maxBuildsToShow}</b> {maxBuildsToShow === 1 ? "Build" : "Builds"}</span>}>
-                    {maxBuildsToShowList.map(v => <MenuItem key={v} onClick={() => buildSettingsDispatch({ maxBuildsToShow: v })}>{v} {v === 1 ? "Build" : "Builds"}</MenuItem>)}
-                  </DropdownButton>
-                </Tooltip>
+                {/* <Tooltip title={<Typography></Typography>} placement="top" arrow> */}
+                <DropdownButton disabled={generatingBuilds || !characterKey} title={<span><b>{maxBuildsToShow}</b> {maxBuildsToShow === 1 ? "Build" : "Builds"}</span>}>
+                  <MenuItem>
+                    <Typography variant="caption" color="info.main">
+                      Decreasing the number of generated build will decrease build calculation time for large number of builds.
+                    </Typography>
+                  </MenuItem>
+                  <Divider />
+                  {maxBuildsToShowList.map(v => <MenuItem key={v} onClick={() => buildSettingsDispatch({ maxBuildsToShow: v })}>{v} {v === 1 ? "Build" : "Builds"}</MenuItem>)}
+                </DropdownButton>
+                {/* </Tooltip> */}
                 <Button
                   disabled={!generatingBuilds}
                   color="error"
@@ -398,16 +406,18 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
           </Typography>
         </CardContent>
       </CardDark>
-      {/* Build List */}
-      {buildStats?.map((build, index) =>
-        characterSheet && weaponSheet && artifactSheets && <ArtifactBuildDisplayItem sheets={{ characterSheet, weaponSheet, artifactSheets }} build={build} characterKey={characterKey as CharacterKey} index={index} key={index} statsDisplayKeys={statsDisplayKeys} onClick={() => setmodalBuild(index)} />
-      )}
+      <Suspense fallback={<Skeleton variant="rectangular" width="100%" height={600} />}>
+        {/* Build List */}
+        {buildStats?.map((build, index) =>
+          characterSheet && weaponSheet && artifactSheets && <ArtifactBuildDisplayItem sheets={{ characterSheet, weaponSheet, artifactSheets }} build={build} characterKey={characterKey as CharacterKey} index={index} key={Object.values(build.equippedArtifacts ?? {}).join()} statsDisplayKeys={statsDisplayKeys} onClick={() => setmodalBuild(index)} />
+        )}
+      </Suspense>
     </Box>
   </buildContext.Provider>
 }
 
 function BuildModal({ build, showCharacterModal, characterKey, selectCharacter, onClose }) {
-  return <ModalWrapper open={(showCharacterModal || build)} onClose={onClose} containerProps={{ maxWidth: "xl" }}>
+  return <ModalWrapper open={!!(showCharacterModal || build)} onClose={onClose} containerProps={{ maxWidth: "xl" }}>
     <CharacterDisplayCard
       characterKey={characterKey}
       setCharacterKey={selectCharacter}

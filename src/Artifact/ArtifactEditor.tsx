@@ -42,11 +42,12 @@ let uploadDisplayReset: (() => void) | undefined
 export default function ArtifactEditor({ artifactIdToEdit, cancelEdit }: ArtifactEditorArgument) {
   const { t } = useTranslation("artifact")
 
-  const [expanded, setExpanded] = useState(false)
-
   const artifactSheets = usePromise(ArtifactSheet.getAll(), [])
 
   const database = useContext(DatabaseContext)
+
+  const [expanded, setExpanded] = useState(() => !database._getArts().length)
+
   const [dirtyDatabase, setDirtyDatabase] = useForceUpdate()
   useEffect(() => database.followAnyArt(setDirtyDatabase), [database, setDirtyDatabase])
 

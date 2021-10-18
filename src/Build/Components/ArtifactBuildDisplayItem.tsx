@@ -1,5 +1,5 @@
-import { CardActionArea, CardContent, Grid, Typography } from '@mui/material';
-import React, { useContext } from 'react';
+import { CardActionArea, CardContent, Grid, Skeleton, Typography } from '@mui/material';
+import React, { Suspense, useContext } from 'react';
 import { ArtifactSheet } from '../../Artifact/ArtifactSheet';
 import { artifactSlotIcon } from '../../Artifact/Component/SlotNameWIthIcon';
 import StatDisplayComponent from '../../Character/CharacterDisplay/StatDisplayComponent';
@@ -31,20 +31,22 @@ export default function ArtifactBuildDisplayItem({ sheets, sheets: { artifactShe
   const { equippedArtifacts } = character
   const currentlyEquipped = allSlotKeys.every(slotKey => equippedArtifacts[slotKey] === build.equippedArtifacts?.[slotKey])
   return <CardLight>
-    <CardActionArea onClick={onClick}>
-      <CardContent>
-        <Grid container spacing={1} sx={{ pb: 1 }}>
-          <Grid item>
-            <Typography variant="h6"><SqBadge color="info"><strong>#{index + 1}{currentlyEquipped ? " (Equipped)" : ""}</strong></SqBadge></Typography>
+    <Suspense fallback={<Skeleton variant="rectangular" width="100%" height={600} />}>
+      <CardActionArea onClick={onClick}>
+        <CardContent>
+          <Grid container spacing={1} sx={{ pb: 1 }}>
+            <Grid item>
+              <Typography variant="h6"><SqBadge color="info"><strong>#{index + 1}{currentlyEquipped ? " (Equipped)" : ""}</strong></SqBadge></Typography>
+            </Grid>
+            {(Object.entries(build.setToSlots) as [ArtifactSetKey, SlotKey[]][]).sort(([key1, slotarr1], [key2, slotarr2]) => slotarr2.length - slotarr1.length).map(([key, slotarr]) =>
+              <Grid item key={key}><Typography variant="h6"><SqBadge color={currentlyEquipped ? "success" : "primary"} >
+                {slotarr.map(slotKey => artifactSlotIcon(slotKey))} {artifactSheets?.[key].name ?? ""}
+              </SqBadge></Typography></Grid>
+            )}
           </Grid>
-          {(Object.entries(build.setToSlots) as [ArtifactSetKey, SlotKey[]][]).sort(([key1, slotarr1], [key2, slotarr2]) => slotarr2.length - slotarr1.length).map(([key, slotarr]) =>
-            <Grid item key={key}><Typography variant="h6"><SqBadge color={currentlyEquipped ? "success" : "primary"} >
-              {slotarr.map(slotKey => artifactSlotIcon(slotKey))} {artifactSheets?.[key].name ?? ""}
-            </SqBadge></Typography></Grid>
-          )}
-        </Grid>
-        <StatDisplayComponent {...{ sheets, character, equippedBuild: build, statsDisplayKeys }} />
-      </CardContent>
-    </CardActionArea>
+          <StatDisplayComponent {...{ sheets, character, equippedBuild: build, statsDisplayKeys }} />
+        </CardContent>
+      </CardActionArea>
+    </Suspense>
   </CardLight>
 }
