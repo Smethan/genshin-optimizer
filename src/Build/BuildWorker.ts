@@ -62,7 +62,7 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
   let { initialStats, formula } = PreprocessFormulas(dependencies, stats)
   let buildCount = 0, skipped = oldCount - newCount
 
-  let gc: () => any, callbackBase: (accu: StrictDict<SlotKey, ICachedArtifact>, stats: ICalculatedStats, buildFilterVal: number) => void
+  let gc: () => any, callback: (accu: StrictDict<SlotKey, ICachedArtifact>, stats: ICalculatedStats) => void
 
   if (plotBase) {
     let data: { plotBase: number, optimizationTarget: number }[] = []
@@ -90,7 +90,12 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
       return data
     }
 
-    callbackBase = (_accu, stats, buildFilterVal) => {
+    callback = (_accu, stats) => {
+      if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
+      formula(stats)
+      if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
+      let buildFilterVal = target(stats)
+
       data.push({ plotBase: stats[plotBase], optimizationTarget: buildFilterVal })
       if (!(buildCount % 50000))
         gc()
@@ -104,7 +109,12 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
       return builds
     }
 
-    callbackBase = (accu, _stats, buildFilterVal) => {
+    callback = (accu, stats) => {
+      if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
+      formula(stats)
+      if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
+      let buildFilterVal = target(stats)
+
       if (buildFilterVal >= threshold) {
         builds.push({ buildFilterVal, artifacts: { ...accu } })
         if (builds.length >= 1000) {
@@ -115,12 +125,6 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
     }
   }
 
-  const callback = (accu: StrictDict<SlotKey, ICachedArtifact>, stats: ICalculatedStats) => {
-    if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
-    formula(stats)
-    if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
-    callbackBase(accu, stats, target(stats))
-  }
   for (const artifactsBySlot of artifactSetPermutations(prunedArtifacts, setFilters))
     artifactPermutations(initialStats, artifactsBySlot, artifactSetEffects, callback)
 
