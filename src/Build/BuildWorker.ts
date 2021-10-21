@@ -65,30 +65,11 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
   let gc: () => any, callback: (accu: StrictDict<SlotKey, ICachedArtifact>, stats: ICalculatedStats) => void
 
   if (plotBase) {
-    let data: { plotBase: number, optimizationTarget: number }[] = []
+    const data: Dict<string, number> = {}, decimalPoint = 2
 
-    gc = () => {
-      // TODO: Use a faster way to do monotonize `data`.
-
-      // Sort descending by `optimizationTarget`, then descending by `plotBase`
-      data.sort((a, b) =>
-        (a.optimizationTarget === b.optimizationTarget)
-          ? b.plotBase - a.plotBase
-          : b.optimizationTarget - a.optimizationTarget
-      )
-      let last = 0
-      data = data.filter((value, i) => {
-        if (i === 0) return true
-
-        if (value.plotBase > data[last].plotBase) {
-          last = i
-          return true
-        }
-        return false
-      })
-
-      return data
-    }
+    gc = () => Object.entries(data)
+      .map(([key, value]) => ({ plotBase: parseFloat(key), optimizationTarget: value }))
+      .sort((a, b) => a.plotBase - b.plotBase)
 
     callback = (_accu, stats) => {
       if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
@@ -96,9 +77,8 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
       if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
       let buildFilterVal = target(stats)
 
-      data.push({ plotBase: stats[plotBase], optimizationTarget: buildFilterVal })
-      if (!(buildCount % 50000))
-        gc()
+      const key = stats[plotBase].toFixed(decimalPoint)
+      data[key] = Math.max(data[key] ?? -Infinity, buildFilterVal)
     }
   } else {
     let builds: Build[] = [], threshold = -Infinity
