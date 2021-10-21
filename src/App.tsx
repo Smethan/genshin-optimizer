@@ -12,6 +12,7 @@ const Home = lazy(() => import('./PageHome/HomeDisplay'))
 const ArtifactDisplay = lazy(() => import('./Artifact/ArtifactDisplay'))
 const CharacterDisplay = lazy(() => import('./Character/CharacterDisplay'))
 const BuildDisplay = lazy(() => import('./Build/BuildDisplay'))
+const BuildPlotDisplay = lazy(() => import('./Build/BuildPlotDisplay'))
 const ToolsDisplay = lazy(() => import('./Tools/ToolsDisplay'))
 const TestDisplay = lazy(() => import('./TestPage/TestDisplay'))
 const FlexDisplay = lazy(() => import('./FlexPage/FlexDisplay'))
@@ -66,6 +67,7 @@ function App() {
             <Route path="/weapon" component={WeaponDisplay} />
             <Route path="/character" component={CharacterDisplay} />
             <Route path="/build" component={BuildDisplay} />
+            <Route path="/plot" component={BuildPlotDisplay} />
             <Route path="/tools" component={ToolsDisplay} />
             {process.env.NODE_ENV === "development" && <Route path="/test" component={TestDisplay} />}
             <Route path="/database" component={SettingsDisplay} />
