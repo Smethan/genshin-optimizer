@@ -38,6 +38,7 @@ import HitModeCard from './Components/HitModeCard';
 import MainStatSelectionCard, { artifactsSlotsToSelectMainStats } from './Components/MainStatSelectionCard';
 import OptimizationTargetSelector from './Components/OptimizationTargetSelector';
 import StatFilterCard from './Components/StatFilterCard';
+import ChartCard from './Chart';
 const InfoDisplay = React.lazy(() => import('./InfoDisplay'));
 
 function buildSettingsReducer(state: BuildSetting, action): BuildSetting {
@@ -72,7 +73,7 @@ function buildSettingsReducer(state: BuildSetting, action): BuildSetting {
 export default function BuildDisplay({ location: { characterKey: propCharacterKey } }) {
   const database = useContext(DatabaseContext)
   const [characterKey, setcharacterKey] = useState(() => {
-    const { characterKey = "" } = dbStorage.get("BuildsDisplay.state") ?? {}
+    const { characterKey = "" } = dbStorage.get("BuildsDisplayPlot.state") ?? {}
     //NOTE that propCharacterKey can override the selected character.
     return (propCharacterKey ?? characterKey) as CharacterKey | ""
   })
@@ -81,6 +82,9 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
   const [generationProgress, setgenerationProgress] = useState(0)
   const [generationDuration, setgenerationDuration] = useState(0)//in ms
   const [generationSkipped, setgenerationSkipped] = useState(0)
+
+  const [chartData, setchartData] = useState(undefined as any)
+  const [plotBase, setPlotBase] = useState("" as StatKey | "")
 
   const [charDirty, setCharDirty] = useForceUpdate()
   const artifactSheets = usePromise(ArtifactSheet.getAll(), [])
@@ -151,7 +155,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
 
   //save to BuildsDisplay.state on change
   useEffect(() => {
-    if (isMounted.current) dbStorage.set("BuildsDisplay.state", { characterKey })
+    if (isMounted.current) dbStorage.set("BuildsDisplayPlot.state", { characterKey })
     else isMounted.current = true
   }, [characterKey])
 
@@ -194,6 +198,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
   const generateBuilds = useCallback(() => {
     if (!initialStats || !artifactSheets) return
     setgeneratingBuilds(true)
+    setchartData(undefined)
     setgenerationDuration(0)
     setgenerationProgress(0)
     setgenerationSkipped(0)
@@ -208,10 +213,10 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
       })
     })
     //create an obj with app the artifact set effects to pass to buildworker.
-    const data: BuildRequest & { plotBase: StatKey } = {
+    const data: BuildRequest & { plotBase: StatKey | "" } = {
       splitArtifacts, initialStats, artifactSetEffects,
       setFilters, minFilters: statFilters, maxBuildsToShow: 1, optimizationTarget,
-      plotBase: "enerRech_", // TODO
+      plotBase,
     };
     worker.current?.terminate()
     worker.current = new Worker()
@@ -230,16 +235,14 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
         label: totBuildNumber.toString()
       })
       const data = e.data.builds as ({ plotArg: number, optimizationTarget: number }[])
-      console.log([...data])
-      // TODO: Plot `data`, or something
-      // Use constant interpolation
+      setchartData(data)
 
       setgeneratingBuilds(false)
       worker.current?.terminate()
       worker.current = null
     };
     worker.current.postMessage(data)
-  }, [artifactSheets, split, totBuildNumber, mainStatAssumptionLevel, initialStats, optimizationTarget, setFilters, statFilters, buildSettingsDispatch])
+  }, [plotBase, artifactSheets, split, totBuildNumber, mainStatAssumptionLevel, initialStats, optimizationTarget, setFilters, statFilters])
 
   const characterName = characterSheet?.name ?? "Character Name"
 
@@ -260,7 +263,7 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
           <Typography variant="h6">Build Generator</Typography>
         </CardContent>
         <Divider />
-        <CardContent>
+        <CardContent >
           <Grid container spacing={1} >
             {/* Left half */}
             <Grid item xs={12} md={6} lg={5} sx={{
@@ -361,7 +364,9 @@ export default function BuildDisplay({ location: { characterKey: propCharacterKe
           {!!characterKey && <Box sx={{ mt: 1 }} >
             <BuildAlert {...{ totBuildNumber, generatingBuilds, generationSkipped, generationProgress, generationDuration, characterName, maxBuildsToShow: 1 }} />
           </Box>}
-
+          {!!statsDisplayKeys && <Box sx={{ mt: 1 }} >
+            <ChartCard data={chartData} plotBase={plotBase} setPlotBase={setPlotBase} statKeys={statsDisplayKeys?.basicKeys} />
+          </Box>}
         </CardContent>
       </CardDark>
     </Box>
