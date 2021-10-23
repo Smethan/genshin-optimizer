@@ -61,46 +61,30 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
 
   let { initialStats, formula } = PreprocessFormulas(dependencies, stats)
   let buildCount = 0, skipped = oldCount - newCount
+  let builds: Build[] = [], threshold = -Infinity
+  const plotDataMap: Dict<string, number> = {}, decimalPoint = 2
 
-  let gc: () => any, callback: (accu: StrictDict<SlotKey, ICachedArtifact>, stats: ICalculatedStats) => void
+  const cleanupBuilds = () => {
+    builds.sort((a, b) => (b.buildFilterVal - a.buildFilterVal))
+    builds.splice(maxBuildsToShow)
+  }
 
-  if (plotBase) {
-    const data: Dict<string, number> = {}, decimalPoint = 2
+  const callback = (accu: StrictDict<SlotKey, ICachedArtifact>, stats: ICalculatedStats) => {
+    if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
+    formula(stats)
+    if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
+    let buildFilterVal = target(stats)
 
-    gc = () => Object.entries(data)
-      .map(([key, value]) => ({ plotBase: parseFloat(key), optimizationTarget: value }))
-      .sort((a, b) => a.plotBase - b.plotBase)
-
-    callback = (_accu, stats) => {
-      if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
-      formula(stats)
-      if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
-      let buildFilterVal = target(stats)
-
+    if (plotBase) {
       const key = stats[plotBase].toFixed(decimalPoint)
-      data[key] = Math.max(data[key] ?? -Infinity, buildFilterVal)
-    }
-  } else {
-    let builds: Build[] = [], threshold = -Infinity
-
-    gc = () => {
-      builds.sort((a, b) => (b.buildFilterVal - a.buildFilterVal))
-      builds.splice(maxBuildsToShow)
-      return builds
+      plotDataMap[key] = Math.max(plotDataMap[key] ?? -Infinity, buildFilterVal)
     }
 
-    callback = (accu, stats) => {
-      if (!(++buildCount % 10000)) postMessage({ progress: buildCount, timing: performance.now() - t1, skipped }, undefined as any)
-      formula(stats)
-      if (Object.entries(minFilters).some(([key, minimum]) => stats[key] < minimum)) return
-      let buildFilterVal = target(stats)
-
-      if (buildFilterVal >= threshold) {
-        builds.push({ buildFilterVal, artifacts: { ...accu } })
-        if (builds.length >= 1000) {
-          gc()
-          threshold = builds[builds.length - 1].buildFilterVal
-        }
+    if (buildFilterVal >= threshold) {
+      builds.push({ buildFilterVal, artifacts: { ...accu } })
+      if (builds.length >= 1000) {
+        cleanupBuilds()
+        threshold = builds[builds.length - 1].buildFilterVal
       }
     }
   }
@@ -108,9 +92,16 @@ onmessage = async (e: { data: BuildRequest & { plotBase?: StatKey } }) => {
   for (const artifactsBySlot of artifactSetPermutations(prunedArtifacts, setFilters))
     artifactPermutations(initialStats, artifactsBySlot, artifactSetEffects, callback)
 
-  const builds = gc(), t2 = performance.now()
+
+  cleanupBuilds()
+  const t2 = performance.now()
   postMessage({ progress: buildCount, timing: t2 - t1, skipped }, undefined as any)
-  postMessage({ builds, timing: t2 - t1, skipped }, undefined as any)
+
+  const plotData = plotBase ? Object.entries(plotDataMap)
+    .map(([key, value]) => ({ plotBase: parseFloat(key), optimizationTarget: value }))
+    .sort((a, b) => a.plotBase - b.plotBase) : undefined
+  console.log("PLOTBASE", plotBase, { builds, plotData, timing: t2 - t1, skipped })
+  postMessage({ builds, plotData, timing: t2 - t1, skipped }, undefined as any)
 }
 
 function canApply(set: ArtifactSetKey, num: SetNum, setBySlot: Dict<SlotKey, Set<ArtifactSetKey>>, filters: SetFilter): boolean {
