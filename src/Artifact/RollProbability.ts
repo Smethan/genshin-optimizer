@@ -1,5 +1,5 @@
-import { IArtifact, ISubstat, MainStatKey, SubstatKey } from '../Types/artifact'
-import { crawlObject, layeredAssignment, objectFromKeyMap, objPathValue } from '../Util/Util'
+import { IArtifact, ISubstat, SubstatKey } from '../Types/artifact'
+import { crawlObject, layeredAssignment } from '../Util/Util'
 import Artifact from './Artifact'
 import ArtifactMainStatsData from './artifact_main_gen.json'
 

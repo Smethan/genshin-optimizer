@@ -1,5 +1,6 @@
 import { IArtifact } from "../Types/artifact"
 import { probability } from "./RollProbability"
+import ArtifactSubstatsData from './artifact_sub_gen.json'
 
 const artifact1: IArtifact = {
   setKey: 'ArchaicPetra',
@@ -36,6 +37,15 @@ const artifact2: IArtifact = {
 }
 
 describe("Roll Probability", () => {
+  test("substat roll ratio", () => {
+    for (const i of [3, 4, 5] as const) {
+      const data = ArtifactSubstatsData[i]
+      for (const values of Object.values(data)) {
+        const normalized = values.map(value => 10 * value / values[values.length - 1])
+        normalized.forEach((value, i) => expect(value).toApproximate(7 + i))
+      }
+    }
+  })
   // See `RollProbability` for the definition of "guarantee rolls"
   describe("guarantee rolls", () => {
     test("one guarantee", () => {
