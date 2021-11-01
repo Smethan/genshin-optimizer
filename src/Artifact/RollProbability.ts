@@ -7,12 +7,28 @@ import ArtifactMainStatsData from './artifact_main_gen.json'
 // and "upgrade rolls" that occurs when all 4 substats are added. They have different
 // probability distribution and require separate consideration.
 
-// E = Extra Substats, T = Target Substats, N = Total Rolls
-// Pr[ E > T ]
-//   = sum_{ n1 + n2 ... <= N } Pr [ n1 rolls into 1st substats & n2 rolls into 2nd substat ... ]
-//       prod_{ i = 1, 2, ... } Pr[ Ei > Ti | n1 rolls into i substat ]
+// Notations for the remainder of this file.
+//
+// i := substat
+// E(i) := Extra substat that rolls into substat i
+// T(i) := Targetted (extra) substat for substat i
+// Nf(i) := # of filler roll into substat i (0 <= Nfi <= 1)
+// Nu(i) := # of upgrade rolls into substat i
+//
+// E := { E1, E2, ... }
+// T := { T1, T2, ... }
+// N(i) := Nf(i) + Nu(i)
+// N := N(1) + N(2) + ...
+//
+// For example, if the artifact has 14 atk, and the target atk is 30,
+// in a scenario where we roll 2 rolls of 16 and 18 into atk, then
+// 
+// i = atk, E(atk) = 16 + 18, T(atk) = 30 - 14, Nf(atk) = 0 roll, Nu(atk) = 2 rolls
 
-// Ratio when rolling a filler roll
+/**
+ * Weight used when rolling a filler roll. Each rolls will choose from available
+ * substats (not main stat and not one of existing substats) with these weightes.
+ */
 const fillerRatio: StrictDict<SubstatKey, 3 | 4 | 6> = {
   hp: 6, atk: 6, def: 6,
   hp_: 4, atk_: 4, def_: 4, eleMas: 4, enerRech_: 4,
@@ -22,7 +38,7 @@ const fillerRatio: StrictDict<SubstatKey, 3 | 4 | 6> = {
 /**
  * Probability of observing a filler sequence with particular weights
  * 
- * pFillerSeq[w][w1][w2][...] = Pr [ Mainstat "Weight" === w0, Substat 1 Weight === w1, Substat 2 Weight === w2, ... ]
+ * pFillerSeq[w0][w1][w2][...] = Pr [ fillerRatio[main stat] = w0, fillerRatio[substat1] = w1, fillerRatio[substat2] = w2, ... ]
  */
 const pFillerSeq: Dict<0 | 3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, number>>>>> = {}
 function populatePFillerSeq(prefix: (0 | 3 | 4 | 6)[], prob: { [key in 3 | 4 | 6]: number }, sumProb: number, current: number) {
@@ -59,7 +75,8 @@ const cnr = Array(6).fill(0).map((_, n) => {
 })
 
 /** 
- * pNExtra[n][i] = Pr[ Extra substat >= (i - 7n) * alpha | Exactly `n` rolls roll into this substat ]
+ * pNExtra[n][i] = Pr[ E(i) >= (i - 7n) * alpha(i) | N(i) = n ]
+ *               = Pr[ (E(i) / alpha(i)) - 7n >= i | N(i) = n ]
  * 
  * 0 <= n <= 5, 0 <= i < 3*n + 1
  */
@@ -124,9 +141,10 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
   for (const [key, value] of Object.entries(target))
     target[key] = Math.max(Math.ceil(10 * value / Artifact.maxSubstatValues(key, rarity)), 1)
 
+
   let minTotalUpgrades = 0
   const targetEntries = Object.entries(target).map(([key, target]) => {
-    const filler = required.has(key) ? 1 : 0 // Has 1 filler roll for this substat
+    const filler = required.has(key) ? 1 : 0 // Nfi
     const minUpgrade = Math.ceil(target / 10) - filler // Minimum # of upgrade rolls required
     minTotalUpgrades += minUpgrade
     return { target, filler, minUpgrade }
@@ -134,42 +152,77 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
 
   if (minTotalUpgrades > numUpgradeRolls) return 0 // Not enough upgrade rolls
 
+  /**
+   * The optimization trick here is to write Pr[ E > T | N ] using a recursive relation. Let
+   * 
+   *  f(t, n) = Pr[ E(i) >= t | N(i) = n ]
+   *          = Pr[ E(i) >= ceil ( T(i) / alpha(i) ) * alpha(i) | N(i) = n + Nf(i) ]
+   *  g(k, n) = Pr[ E(1) >= T(1), E(2) >= T(2), ..., E(k) >= T(k) | N(1) + N(2) + ... + N(k) = n ]
+   *  h(n, m, M) = Pr[ Nu(k) = m | 0 <= Nu(k) <= n, |K| = M ]
+   *  
+   * Then
+   * 
+   *  Pr [ E > T | N ] = Pr[ Nf(k) = I(k requires filler) for all k | N ] sum{0 <= n <= N} g(|K|, n)
+   * 
+   * where I(X) is the indicator function, and |K| is the number of substat constraints, and
+   * 
+   *  f(e * alpha(i), n) = pNExtra[n][ e - 7n ]
+   *  h(n, m, M) = C(n, m) (M-1)^(n - m) M^(-n)
+   *  g(0, 0) = 1
+   *  g(0, n) = 0 for n > 0
+   * 
+   *  g(k + 1, n) = sum{0 <= m <= n} g(k, n - m - Nf(k))f(T(k), m + Nf(k)) h(N - N(1) - ... - N(k - 1) - Nf(k), m, |K| - k)
+   */
+
+  // At this point, `target` = ceil(T / alpha)
+  // sum{0 <= i <= |K|} Nu(i) = numUpgradeRolls
+
   let result = { [numUpgradeRolls]: 1 }, additionalUpgradeRolls = numUpgradeRolls - minTotalUpgrades
 
   // Keep applying `target` from first to last. After each step, 
-  // result[key] = Pr[ meet the current target with `key` upgrade rolls left unused ]
+  // At each step i in the loop below, `result[n]` = g(i, N - N(1)- N(2) - ... - N(i-1))
   targetEntries.forEach(({ target, filler, minUpgrade }, targetIndex) => {
     const next: typeof result = {}
 
     for (let rolls = minUpgrade; rolls <= minUpgrade + additionalUpgradeRolls; rolls++) {
+      // m = Nu(i) = rolls, T(i) = extra + 7n
+
       // Extra substat (mutiple of alpha) required from upgrade & filler rolls
       const extra = target - 7 * (rolls + filler)
-      // Pr[ Has at least `extra` * alpha from `rolls` upgrade or filler rolls into `key` ]
+      // pExtra = Pr[ Has at least `extra` * alpha from `rolls` upgrade or filler rolls into `key` ]
+      //        = f(T(i), m + Nf(i))
       const pExtra = (extra > 0 ? pNExtra[rolls + filler][extra] : 1)
 
       for (const [_remaining, probability] of Object.entries(result)) {
+        // n = remaining - rolls, g(i, n - m - Nf(i)) = probability
+
         const remaining = parseInt(_remaining)
         if (remaining < rolls) continue
 
-        // Pr[ Has `rolls` rolls into `key` from `remaining` upgrade rolls ]
-        const pRolls = pRollInto(rolls, remaining, 4 - targetIndex)
+        // `pRolls` = Pr[ Has `rolls` rolls into `key` from `remaining` upgrade rolls ]
+        //          = h(N - N(1) - ... - N(i - 1) - Nf(i), m, |K| - i)
+        const pRolls = pRollInto(remaining, rolls, 4 - targetIndex)
         const index = remaining - rolls
+
+        // g(k + 1, n) += g(k, n - m - Nf(i))f(T(i), m + Nf(i)) h(N - N(1) - ... - N(i - 1) - Nf(i), m, |K| - i)
         next[index] = (next[index] ?? 0) + probability * pExtra * pRolls
       }
     }
     result = next
   })
 
+  // At this point, `result[i]` = g(|K|, i)
+
   return calculatePFillerRolls(artifact.mainStatKey, substats, required) * Object.values(result).reduce((a, b) => a + b)
 }
 
 /**
- * Pr[ Has exactly `n` rolls into a substat | Has total of `N` rolls into `M` different substats with equal probability ]
+ * Pr[ N(k) = n | N = m, |K| = M ]
  * 
  * 0 <= n <= N <= 5; 0 <= M <= 4
  */
-function pRollInto(n: number, N: number, M: number) {
-  return cnr[N][n] * Math.pow(M - 1, N - n) / Math.pow(M, N)
+function pRollInto(m: number, n: number, M: number) {
+  return cnr[m][n] * Math.pow(M - 1, m - n) / Math.pow(M, m)
 }
 
 // Given a list of substat (in that order), calculate the probability that filler rolls will have all `required` substats in any order
