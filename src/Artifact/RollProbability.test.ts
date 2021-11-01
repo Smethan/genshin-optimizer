@@ -38,6 +38,7 @@ const artifact2: IArtifact = {
 
 describe("Roll Probability", () => {
   test("substat roll ratio", () => {
+    // Checks that every roll follos 7 : 8 : 9 : 10 ratio
     for (const i of [3, 4, 5] as const) {
       const data = ArtifactSubstatsData[i]
       for (const values of Object.values(data)) {
@@ -46,25 +47,25 @@ describe("Roll Probability", () => {
       }
     }
   })
-  // See `RollProbability` for the definition of "guarantee rolls"
-  describe("guarantee rolls", () => {
-    test("one guarantee", () => {
+  // See `RollProbability` for the definition of "filler rolls"
+  describe("filler rolls", () => {
+    test("one roll", () => {
       // At this point, there are 7 unused substats and 1 slot, totaling a weight of 31
       expect(probability(artifact1, { critRate_: 0.1 })).toApproximate(3 / 31) // w(critRate_) = 3
       expect(probability(artifact1, { atk_: 0.1 })).toApproximate(4 / 31) // w(atk_) = 4
       expect(probability(artifact1, { enerRech_: 0.1 })).toApproximate(4 / 31) // w(enerRech_) = 4
       expect(probability(artifact1, { hp_: 0.1 })).toApproximate(4 / 31) // w(hp_) = 4
     })
-    test("two guarantees", () => {
+    test("two rolls", () => {
       // At this point, there are 8 unused substats and 2 slot, substat totaling a weight of 34
       expect(probability(artifact2, { critRate_: 0.1, critDMG_: 0.1 })).toApproximate(2 * (3 / 34 * 3 / 31))
       // w(atk_) = 4, w(critRate_) = 3
       expect(probability(artifact2, { critRate_: 0.1, atk_: 0.1 })).toApproximate(4 / 34 * 3 / 30 + 3 / 34 * 4 / 31)
     })
   })
-  describe("regular rolls", () => {
+  describe("upgrade rolls", () => {
     test("one substat", () => {
-      // art1 has 4 regular rolls
+      // art1 has 4 upgrade rolls
       expect(probability(artifact1, { critDMG_: 6.2 + 7.77 * 4 })).toApproximate(Math.pow(1 / 16, 4))
     })
   })
