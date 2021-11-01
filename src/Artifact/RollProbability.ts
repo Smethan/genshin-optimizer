@@ -167,9 +167,9 @@ function pRollInto(n: number, N: number, M: number) {
 
 // Given a list of substat (in that order), calculate the probability that filler rolls will have all `required` substats in any order
 function calculatePFillerRolls(substats: ISubstat[], required: Set<SubstatKey>) {
-  // Instead of picking substats in particular order [critDMG_, atk_, ...],
+  // Instead of picking substats in a particular order [critDMG_, atk_, ...],
   // We pick substat weights first [3, 4, 3, ...], then assign proper substats
-  // that corresponds to that weight 3 => critDMG_ | critRate_ ; 4 => atk_, ...
+  // that corresponds to that weight: 3 => critDMG_ | critRate_ ; 4 => atk_, etc.
   // This reduces the search space significantly (5040 substat sequences => 71 weight sequences).
 
   let pFillerRolls = 0 // Pr[ filler rolls include all `required` substats, Substats are in the same order as `substats` ]
