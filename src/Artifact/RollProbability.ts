@@ -3,7 +3,7 @@ import { crawlObject, layeredAssignment } from '../Util/Util'
 import Artifact from './Artifact'
 import ArtifactMainStatsData from './artifact_main_gen.json'
 
-// We separate rools into "filler rolls" that occurs when there are less than 4 substats,
+// We separate rolls into "filler rolls" that occurs when there are less than 4 substats,
 // and "upgrade rolls" that occurs when all 4 substats are added. They have different
 // probability distribution and require separate consideration.
 
@@ -19,8 +19,11 @@ const fillerRatio: StrictDict<SubstatKey, 3 | 4 | 6> = {
   critRate_: 3, critDMG_: 3
 }
 
-// Probability of observing a filler sequence with particular weights
-// pFillerSeq[w1][w2][...] = Pr [ Substat 1 Weight === w1, Substat 2 Weight === w2, ... ]
+/**
+ * Probability of observing a filler sequence with particular weights
+ * 
+ * pFillerSeq[w][w1][w2][...] = Pr [ Mainstat "Weight" === w0, Substat 1 Weight === w1, Substat 2 Weight === w2, ... ]
+ */
 const pFillerSeq: Dict<0 | 3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, number>>>>> = {}
 function populatePFillerSeq(prefix: (0 | 3 | 4 | 6)[], prob: { [key in 3 | 4 | 6]: number }, sumProb: number, current: number) {
   if (prefix.length === 5) {
@@ -56,9 +59,9 @@ const cnr = Array(6).fill(0).map((_, n) => {
 })
 
 /** 
- * probabilityPerRoll[n][i] = Pr[ Extra substat >= (i - 7n) * alpha | Exactly `n` rolls roll into this substat ]
+ * pNExtra[n][i] = Pr[ Extra substat >= (i - 7n) * alpha | Exactly `n` rolls roll into this substat ]
  * 
- * 0 <= n <= 6, 0 <= i < 3*n + 1
+ * 0 <= n <= 5, 0 <= i < 3*n + 1
  */
 const pNExtra = [[1]]
 while (pNExtra.length < 6) {
@@ -161,7 +164,7 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
 }
 
 /**
- * Pr[Has exactly `n` rolls into a substat | Has total of `N` rolls into `M` different substats with equal probability]
+ * Pr[ Has exactly `n` rolls into a substat | Has total of `N` rolls into `M` different substats with equal probability ]
  * 
  * 0 <= n <= N <= 5; 0 <= M <= 4
  */
