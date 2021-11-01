@@ -1,5 +1,5 @@
-import { IArtifact, ISubstat, SubstatKey } from '../Types/artifact'
-import { crawlObject, layeredAssignment, objectFromKeyMap } from '../Util/Util'
+import { IArtifact, ISubstat, MainStatKey, SubstatKey } from '../Types/artifact'
+import { crawlObject, layeredAssignment } from '../Util/Util'
 import Artifact from './Artifact'
 import ArtifactMainStatsData from './artifact_main_gen.json'
 
@@ -21,9 +21,9 @@ const fillerRatio: StrictDict<SubstatKey, 3 | 4 | 6> = {
 
 // Probability of observing a filler sequence with particular weights
 // pFillerSeq[w1][w2][...] = Pr [ Substat 1 Weight === w1, Substat 2 Weight === w2, ... ]
-const pFillerSeq: Dict<SubstatKey, Dict<SubstatKey, Dict<SubstatKey, Dict<SubstatKey, number>>>> = {}
-function populatePFillerSeq(prefix: (3 | 4 | 6)[], prob: { [key in 3 | 4 | 6]: number }, sumProb: number, current: number) {
-  if (prefix.length === 4) {
+const pFillerSeq: Dict<0 | 3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, Dict<3 | 4 | 6, number>>>>> = {}
+function populatePFillerSeq(prefix: (0 | 3 | 4 | 6)[], prob: { [key in 3 | 4 | 6]: number }, sumProb: number, current: number) {
+  if (prefix.length === 5) {
     layeredAssignment(pFillerSeq, prefix as any, current)
     return
   }
@@ -32,7 +32,11 @@ function populatePFillerSeq(prefix: (3 | 4 | 6)[], prob: { [key in 3 | 4 | 6]: n
     if (prob[i] > 0)
       populatePFillerSeq([...prefix, i], { ...prob, [i]: prob[i] - i }, sumProb - i, current * prob[i] / sumProb)
 }
-populatePFillerSeq([], { 3: 6, 4: 20, 6: 18 }, 44, 1)
+populatePFillerSeq([0], { 3: 6, 4: 20, 6: 18 }, 44, 1)
+
+populatePFillerSeq([3], { 3: 3, 4: 20, 6: 18 }, 41, 1)
+populatePFillerSeq([4], { 3: 6, 4: 16, 6: 18 }, 40, 1)
+populatePFillerSeq([6], { 3: 6, 4: 20, 6: 12 }, 38, 1)
 
 /**
  * cnr[n][r] = C(n, r) = n! / (r!(n-r)!)
@@ -153,7 +157,7 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
     result = next
   })
 
-  return calculatePFillerRolls(substats, required) * Object.values(result).reduce((a, b) => a + b)
+  return calculatePFillerRolls(artifact.mainStatKey, substats, required) * Object.values(result).reduce((a, b) => a + b)
 }
 
 /**
@@ -166,16 +170,17 @@ function pRollInto(n: number, N: number, M: number) {
 }
 
 // Given a list of substat (in that order), calculate the probability that filler rolls will have all `required` substats in any order
-function calculatePFillerRolls(substats: ISubstat[], required: Set<SubstatKey>) {
+function calculatePFillerRolls(mainStat: MainStatKey, substats: ISubstat[], required: Set<SubstatKey>) {
   // Instead of picking substats in a particular order [critDMG_, atk_, ...],
   // We pick substat weights first [3, 4, 3, ...], then assign proper substats
   // that corresponds to that weight: 3 => critDMG_ | critRate_ ; 4 => atk_, etc.
   // This reduces the search space significantly (5040 substat sequences => 71 weight sequences).
 
+  const mainStatRatio = fillerRatio[mainStat] ?? 0
   let pFillerRolls = 0 // Pr[ filler rolls include all `required` substats, Substats are in the same order as `substats` ]
 
-  const numUnusedSubstats = { 3: 2, 4: 5, 6: 3 }
-  let pSuffixFillerSeq: any = pFillerSeq // Suffix of `pFillerSeq` that excludes the `substats` portion
+  const numUnusedSubstats = { 3: 2, 4: 5, 6: 3 } // # of substat not used by main stat or substats
+  let pSuffixFillerSeq: any = pFillerSeq[mainStatRatio] // Suffix of `pFillerSeq` that excludes the `substats` portion
   for (const { key } of substats) {
     if (key) {
       const ratio = fillerRatio[key]
@@ -183,6 +188,7 @@ function calculatePFillerRolls(substats: ISubstat[], required: Set<SubstatKey>) 
       numUnusedSubstats[ratio] -= 1
     }
   }
+  if (mainStatRatio) numUnusedSubstats[mainStatRatio] -= 1
 
   const requiredCount = { 3: 0, 4: 0, 6: 0 }
   for (const key of required) {
