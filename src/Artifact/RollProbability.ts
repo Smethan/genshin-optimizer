@@ -19,6 +19,7 @@ import ArtifactMainStatsData from './artifact_main_gen.json'
 // T := { T1, T2, ... }
 // N(i) := Nf(i) + Nu(i)
 // N := N(1) + N(2) + ...
+// Nu := Nu(1) + Nu(2) + ...
 //
 // For example, if the artifact has 14 atk, and the target atk is 30,
 // in a scenario where we roll 2 rolls of 16 and 18 into atk, then
@@ -144,7 +145,7 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
 
   let minTotalUpgrades = 0
   const targetEntries = Object.entries(target).map(([key, target]) => {
-    const filler = required.has(key) ? 1 : 0 // Nfi
+    const filler = required.has(key) ? 1 : 0 // Nf(i)
     const minUpgrade = Math.ceil(target / 10) - filler // Minimum # of upgrade rolls required
     minTotalUpgrades += minUpgrade
     return { target, filler, minUpgrade }
@@ -155,23 +156,22 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
   /**
    * The optimization trick here is to write Pr[ E > T | N ] using a recursive relation. Let
    * 
-   *  f(t, n) = Pr[ E(i) >= t | N(i) = n ]
-   *          = Pr[ E(i) >= ceil ( T(i) / alpha(i) ) * alpha(i) | N(i) = n + Nf(i) ]
-   *  g(k, n) = Pr[ E(1) >= T(1), E(2) >= T(2), ..., E(k) >= T(k) | N(1) + N(2) + ... + N(k) = n ]
+   *  f(n, t) = Pr[ E(i) >= t | N(i) = n ]
+   *  g(k, n) = Pr[ E(1) >= T(1), E(2) >= T(2), ..., E(k) >= T(k) | Nu - Nu(1) - Nu(2) - ... - Nu(k) = n ]
    *  h(n, m, M) = Pr[ Nu(k) = m | 0 <= Nu(k) <= n, |K| = M ]
    *  
    * Then
    * 
-   *  Pr [ E > T | N ] = Pr[ Nf(k) = I(k requires filler) for all k | N ] sum{0 <= n <= N} g(|K|, n)
+   *  Pr [ E > T | N ] = Pr[ Nf(k) = I(k requires filler) for all k | N ] sum{0 <= n <= N - Nf} g(|K|, n)
    * 
    * where I(X) is the indicator function, and |K| is the number of substat constraints, and
    * 
-   *  f(e * alpha(i), n) = pNExtra[n][ e - 7n ]
-   *  h(n, m, M) = C(n, m) (M-1)^(n - m) M^(-n)
-   *  g(0, 0) = 1
-   *  g(0, n) = 0 for n > 0
+   *  f(n, e * alpha(i)) = pNExtra[n][ e - 7n ]
+   *  h(n, m, M) = C(n, m) (M-1)^(n - m) M^(-n) = pRollInto(n, m, M)
+   *  g(0, N) = 1
+   *  g(0, n) = 0 for n != N
    * 
-   *  g(k + 1, n) = sum{0 <= m <= n} g(k, n - m - Nf(k))f(T(k), m + Nf(k)) h(N - N(1) - ... - N(k - 1) - Nf(k), m, |K| - k)
+   *  g(k + 1, n) = sum{0 <= m <= n} g(k, n + m) f(m + Nf(k), T(k)) h(n + m, m, |K| - k)
    */
 
   // At this point, `target` = ceil(T / alpha)
@@ -180,31 +180,33 @@ function probability(artifact: IArtifact, _target: { [key in SubstatKey]?: numbe
   let result = { [numUpgradeRolls]: 1 }, additionalUpgradeRolls = numUpgradeRolls - minTotalUpgrades
 
   // Keep applying `target` from first to last. After each step, 
-  // At each step i in the loop below, `result[n]` = g(i, N - N(1)- N(2) - ... - N(i-1))
+  // At each step i in the loop below, `result[n]` = g(i, n)
   targetEntries.forEach(({ target, filler, minUpgrade }, targetIndex) => {
     const next: typeof result = {}
 
     for (let rolls = minUpgrade; rolls <= minUpgrade + additionalUpgradeRolls; rolls++) {
-      // m = Nu(i) = rolls, T(i) = extra + 7n
+      // rolls = m = Nu(i); extra = T(i) / alpha - 7n
 
       // Extra substat (mutiple of alpha) required from upgrade & filler rolls
       const extra = target - 7 * (rolls + filler)
       // pExtra = Pr[ Has at least `extra` * alpha from `rolls` upgrade or filler rolls into `key` ]
-      //        = f(T(i), m + Nf(i))
+      //        = f(m + Nf(i), T(i))
       const pExtra = (extra > 0 ? pNExtra[rolls + filler][extra] : 1)
 
       for (const [_remaining, probability] of Object.entries(result)) {
-        // n = remaining - rolls, g(i, n - m - Nf(i)) = probability
+        // n := remaining - m
+        // remaining = n + m
+        // probability = g(i, n + m)
 
         const remaining = parseInt(_remaining)
         if (remaining < rolls) continue
 
         // `pRolls` = Pr[ Has `rolls` rolls into `key` from `remaining` upgrade rolls ]
-        //          = h(N - N(1) - ... - N(i - 1) - Nf(i), m, |K| - i)
+        //          = h(n + m, m, |K| - i)
         const pRolls = pRollInto(remaining, rolls, 4 - targetIndex)
-        const index = remaining - rolls
+        const index = remaining - rolls // n
 
-        // g(k + 1, n) += g(k, n - m - Nf(i))f(T(i), m + Nf(i)) h(N - N(1) - ... - N(i - 1) - Nf(i), m, |K| - i)
+        // g(i + 1, n) += g(i, n + m) f(T(i), m + Nf(i)) h(n + m, m, |K| - i)
         next[index] = (next[index] ?? 0) + probability * pExtra * pRolls
       }
     }
